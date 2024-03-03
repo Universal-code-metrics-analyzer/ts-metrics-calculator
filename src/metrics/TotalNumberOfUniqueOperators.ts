@@ -1,7 +1,7 @@
 import esprima from 'esprima';
 import { IMetric } from "@/types";
 
-export default class HalsteadTotalNumberOfUniqueOperators implements IMetric {
+export default class TotalNumberOfUniqueOperators implements IMetric {
   private _name = 'Total number of unique operators';
   private _info = 'Total number of unique operators';
   private _scope = 'any';

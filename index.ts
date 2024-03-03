@@ -1,6 +1,5 @@
-import HalsteadTotalNumberOfUniqueOperators from './src/metrics/HalsteadTotalNumberOfUniqueOperators';
-import HalsteadTotalNumberOfOperators from './src/metrics/HalsteadTotalNumberOfOperators';
 import esprima from 'esprima';
+import ProgramEffort from './src/metrics/ProgramEffort';
 
 console.log('Starting...');
 
@@ -17,6 +16,6 @@ console.log(dammit(foo));
 `;
 
 const ast = esprima.parseModule(text, { jsx: true, tokens: true });
-console.log(JSON.stringify(ast, null, 2));
-const totalNumberOfOperators = new HalsteadTotalNumberOfUniqueOperators().run(ast);
-console.log(totalNumberOfOperators.value);
+//console.log(JSON.stringify(ast, null, 2));
+const programEffort = new ProgramEffort().run(ast);
+console.log(programEffort.value);
