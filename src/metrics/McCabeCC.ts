@@ -6,7 +6,7 @@ export default class McCabeCC implements IMetric {
   private _name = 'McCabe cylomatic complexity';
   private _info =
     'm - number of edges\nm - number of nodes\nvalue - cylomatic complexity (Z)';
-  private _scope = 'any';
+  private _scope = 'function';
 
   public get name() {
     return this._name;

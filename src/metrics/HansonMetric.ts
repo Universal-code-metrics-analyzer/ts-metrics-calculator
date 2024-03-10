@@ -9,7 +9,7 @@ export default class HansonMetric implements IMetric {
   private _name = 'Hanson metric';
   private _info =
     'Complexity metric defined by Hanson https://dl.acm.org/doi/pdf/10.1145/954373.954375';
-  private _scope = 'any';
+  private _scope = 'function';
 
   public get name() {
     return this._name;
