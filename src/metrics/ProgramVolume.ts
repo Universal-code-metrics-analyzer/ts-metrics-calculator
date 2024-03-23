@@ -1,7 +1,8 @@
-import esprima from 'esprima';
 import { IMetric } from "@/types";
 import ImplemetationLength from './ImplementationLength';
 import ProgramDictionary from './ProgramDictionary';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class ProgramVolume implements IMetric {
   private _name = 'Program volume';
@@ -20,7 +21,7 @@ export default class ProgramVolume implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
+  public run(program: ParseResult<File>) {
     return { value: new ImplemetationLength().run(program).value * Math.log2(new ProgramDictionary().run(program).value) };
   } 
 }

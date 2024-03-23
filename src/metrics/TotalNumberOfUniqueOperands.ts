@@ -1,5 +1,6 @@
-import esprima from 'esprima';
 import { IMetric } from "@/types";
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class TotalNumberOfUniqueOperands implements IMetric {
   private _name = 'Total number of unique operands';
@@ -18,15 +19,19 @@ export default class TotalNumberOfUniqueOperands implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
-    const uniqueOperators: string[] = [];
+  public run(program: ParseResult<File>) {
+    const uniqueOperands: string[][] = [];
     if (program.tokens) {
       for (const token of program.tokens) {
-        if (token.type !== 'Keyword' && token.type !== 'Punctuator' && !uniqueOperators.includes(token.value)) {
-          uniqueOperators.push(token.value);
+        if (token.type.keyword === undefined 
+          && token.value 
+          && (token.type.label === 'name' || token.type.label === 'string') 
+          && token.value !== 'let' 
+          && !uniqueOperands.find((elem) => elem[0] === token.value && elem[1] === token.type.label)) {
+          uniqueOperands.push([token.value, token.type.label]);
         } 
       }
     }
-    return { value: uniqueOperators.length };
+    return { value: uniqueOperands.length };
   } 
 }

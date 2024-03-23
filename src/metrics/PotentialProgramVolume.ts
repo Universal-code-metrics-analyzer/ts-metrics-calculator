@@ -1,6 +1,7 @@
-import esprima from 'esprima';
 import { IMetric } from "@/types";
 import NumberOfInputOutputParameters from './NumberOfInputOutputParameters';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class PotentialProgramVolume implements IMetric {
   private _name = 'Potential program volume';
@@ -19,7 +20,7 @@ export default class PotentialProgramVolume implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
+  public run(program: ParseResult<File>) {
     const numberOfInputOutputParameters = new NumberOfInputOutputParameters().run(program).value;
     return { value: (numberOfInputOutputParameters + 2) * Math.log2(numberOfInputOutputParameters + 2) };
   } 

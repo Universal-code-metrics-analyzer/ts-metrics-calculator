@@ -1,6 +1,6 @@
-import esprima from 'esprima';
 import { IMetric } from "../types";
-import { findFirstNodeInAst } from '../utils';
+import { ParseResult } from '@babel/parser';
+import { ArrowFunctionExpression, File, FunctionDeclaration, traverse } from '@babel/types';
 
 export default class NumberOfInputOutputParameters implements IMetric {
   private _name = 'Number of input & output parameters';
@@ -19,18 +19,25 @@ export default class NumberOfInputOutputParameters implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
+  public run(program: ParseResult<File>) {
     let numberOfInputParams = 0;
     let isReturn = null;
-    let func = findFirstNodeInAst(program, 'FunctionDeclaration');
-    if (!func) func = findFirstNodeInAst(program, 'ArrowFunctionExpression');
 
-    if (func) {
-      numberOfInputParams = func.params.length;
-      isReturn = findFirstNodeInAst(program, 'ReturnStatement');
-    } else {
-      throw Error("Invalid scope: provided source code is not a function or arrow function");
+    let functions: Array<FunctionDeclaration | ArrowFunctionExpression> = [];
+
+    traverse(program, {
+      enter(node) {
+        if (node.type === 'FunctionDeclaration' || node.type === 'ArrowFunctionExpression')
+          functions.push(node);
+        else if (node.type === 'ReturnStatement')
+          isReturn = true;
+      }
+    });
+
+    for (const func of functions) {
+      numberOfInputParams += func.params.length;
     }
+    
     return { value: numberOfInputParams + (isReturn ? 1 : 0) };
   } 
 }
