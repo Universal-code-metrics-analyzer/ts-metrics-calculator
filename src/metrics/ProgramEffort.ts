@@ -1,7 +1,8 @@
-import esprima from 'esprima';
 import { IMetric } from "@/types";
 import PotentialProgramVolume from './PotentialProgramVolume';
 import ProgramLevel from './ProgramLevel';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class ProgramEffort implements IMetric {
   private _name = 'Program effort';
@@ -20,7 +21,7 @@ export default class ProgramEffort implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
+  public run(program: ParseResult<File>) {
     return { value: new PotentialProgramVolume().run(program).value / new ProgramLevel().run(program).value };
   } 
 }

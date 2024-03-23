@@ -1,7 +1,8 @@
-import esprima from 'esprima';
 import { IMetric } from "@/types";
 import TotalNumberOfOperands from './TotalNumberOfOperands';
 import TotalNumberOfOperators from './TotalNumberOfOperators';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class ImplemetationLength implements IMetric {
   private _name = 'Implementation length';
@@ -20,7 +21,7 @@ export default class ImplemetationLength implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
+  public run(program: ParseResult<File>) {
     return { value: new TotalNumberOfOperands().run(program).value + new TotalNumberOfOperators().run(program).value };
   } 
 }

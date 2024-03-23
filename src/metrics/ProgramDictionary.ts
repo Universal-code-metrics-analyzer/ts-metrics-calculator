@@ -1,7 +1,8 @@
-import esprima from 'esprima';
 import { IMetric } from "@/types";
 import TotalNumberOfUniqueOperands from './TotalNumberOfUniqueOperands';
 import TotalNumberOfUniqueOperators from './TotalNumberOfUniqueOperators';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class ProgramDictionary implements IMetric {
   private _name = 'Program Dictionary';
@@ -20,7 +21,7 @@ export default class ProgramDictionary implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
+  public run(program: ParseResult<File>) {
     return { value: new TotalNumberOfUniqueOperands().run(program).value + new TotalNumberOfUniqueOperators().run(program).value };
   } 
 }

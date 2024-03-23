@@ -1,5 +1,6 @@
-import esprima from 'esprima';
 import { IMetric } from "@/types";
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class TotalNumberOfOperands implements IMetric {
   private _name = 'Total number of operands';
@@ -18,13 +19,16 @@ export default class TotalNumberOfOperands implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
-    let operatorsCount = 0;
+  public run(program: ParseResult<File>) {
+    let operandsCount = 0;
     if (program.tokens) {
       for (const token of program.tokens) {
-        if (token.type !== 'Keyword' && token.type !== 'Punctuator') operatorsCount++;
+        if (token.type.keyword === undefined 
+          && token.value 
+          && (token.type.label === 'name' || token.type.label === 'string') 
+          && token.value !== 'let') operandsCount++;
       }
     }
-    return { value: operatorsCount };
+    return { value: operandsCount };
   } 
 }
