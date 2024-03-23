@@ -1,9 +1,10 @@
 import { IMetric } from '@/types';
-import esprima from 'esprima';
 import McCabeCC from './McCabeCC';
 import NumberOfHansonOperators from './NumberOfHansonOperators';
 // @ts-ignore
 import * as Styx from 'styx';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 export default class HansonMetric implements IMetric {
   private _name = 'Hanson metric';
@@ -23,11 +24,11 @@ export default class HansonMetric implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program, programFlow: typeof Styx.parse) {
+  public run(program: ParseResult<File>, programFlow: typeof Styx.parse) {
     return {
       value: {
         A: new McCabeCC().run(programFlow).value,
-        B: new NumberOfHansonOperators().run(program),
+        B: new NumberOfHansonOperators().run(program).value,
       },
     };
   }

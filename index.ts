@@ -1,110 +1,107 @@
-import ProgramEffort from './src/metrics/ProgramEffort';
-
 import parser from '@babel/parser';
-import TotalNumberOfOperands from './src/metrics/TotalNumberOfOperands';
-import TotalNumberOfOperators from './src/metrics/TotalNumberOfOperators';
-import TotalNumberOfUniqueOperands from './src/metrics/TotalNumberOfUniqueOperands';
-import TotalNumberOfUniqueOperators from './src/metrics/TotalNumberOfUniqueOperators';
 import NumberOfInputOutputParameters from './src/metrics/NumberOfInputOutputParameters';
+import HansonMetric from './src/metrics/HansonMetric';
+// @ts-ignore
+import * as Styx from 'styx';
 
 console.log('Starting...');
 
-// const text = `
-// let foo = 'bar';
-// foo = foo + ' puk puk';
-// const dammit = (chpok) => {
-//   if (chpok.length > 5) {
-//     chpok + ' dfjidfj';
-//   } 
-//   return chpok;
-// }
-// console.log(dammit(foo));
-// `;
-
 const text = `
-class A {
-  var1 = 1
-  var2 = 'bla'
-
-  constructor(param) {
-
-  }
-
-  func1(param) {
-
-  }
-
-  func2(param) {
-    return this.var1
-  }
+let foo = 'bar';
+foo = foo + ' puk puk';
+const dammit = (chpok) => {
+  if (chpok.length > 5) {
+    chpok + ' dfjidfj';
+  } 
+  return chpok;
 }
-
-class B {
-
-}
-
-class C {
-
-}
-
-class D {
-
-}
+console.log(dammit(foo));
 `;
 
-class A {
-  var1 = 1
-  var2 = 'bla'
-  var3 = new C(this.var1)
-  var4 = new D(this.var2)
+// const text = `
+// class A {
+//   var1 = 1
+//   var2 = 'bla'
 
-  constructor() {
+//   constructor(param) {
 
-  }
+//   }
 
-  func(param: D) {
-    return this.var1 * param.func()
-  }
-}
+//   func1(param) {
 
-class B {
-  var1 = 1
-  var2 = 'bla'
+//   }
 
-  constructor(param) {
+//   func2(param) {
+//     return this.var1
+//   }
+// }
 
-  }
+// class B {
 
-  func(param: A) {
-    return this.var1 * param.func()
-  }
-}
+// }
 
-class C {
-  var1 = 1
-  var2 = 'bla'
+// class C {
 
-  constructor(param) {
+// }
 
-  }
+// class D {
 
-  func(param) {
-    return this.var1 * param.func()
-  }
-}
+// }
+// `;
 
-class D {
-  var1 = 1
-  var2 = 'bla'
+// class A {
+//   var1 = 1
+//   var2 = 'bla'
+//   var3 = new C(this.var1)
+//   var4 = new D(this.var2)
 
-  constructor(param) {
+//   constructor() {
 
-  }
+//   }
 
-  func() {
-    return this.var1 + this.
-  }
-}
+//   func(param: D) {
+//     return this.var1 * param.func()
+//   }
+// }
+
+// class B {
+//   var1 = 1
+//   var2 = 'bla'
+
+//   constructor(param) {
+
+//   }
+
+//   func(param: A) {
+//     return this.var1 * param.func()
+//   }
+// }
+
+// class C {
+//   var1 = 1
+//   var2 = 'bla'
+
+//   constructor(param) {
+
+//   }
+
+//   func(param) {
+//     return this.var1 * param.func()
+//   }
+// }
+
+// class D {
+//   var1 = 1
+//   var2 = 'bla'
+
+//   constructor(param) {
+
+//   }
+
+//   func() {
+//     return this.var1 + this.
+//   }
+// }
 
 const program = parser.parse(text, {
   tokens: true,
@@ -113,5 +110,6 @@ const program = parser.parse(text, {
   ]
 });
 
-const totalNumberOfOperands = new NumberOfInputOutputParameters().run(program);
-console.log(totalNumberOfOperands.value);
+const programFlow = Styx.parse(program.program);
+
+console.log(new HansonMetric().run(program, programFlow));

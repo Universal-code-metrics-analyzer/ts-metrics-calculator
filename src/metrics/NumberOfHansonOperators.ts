@@ -1,6 +1,6 @@
 import { IMetric } from '@/types';
-import esprima from 'esprima';
-import { walk, type SyncHandler } from 'estree-walker';
+import { ParseResult } from '@babel/parser';
+import { File, traverse } from '@babel/types';
 
 export default class NumberOfHansonOperators implements IMetric {
   private _name = 'Number of Hanson operators';
@@ -20,20 +20,18 @@ export default class NumberOfHansonOperators implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: esprima.Program) {
+  public run(program: ParseResult<File>) {
     let operatorsCount = 0;
-
-    const enter: SyncHandler = (node) => {
-      if (
-        ['BinaryExpression', 'AssignmentExpression', 'CallExpression'].includes(
-          node.type
-        )
-      ) {
-        operatorsCount++;
-      }
-    };
-
-    walk(program, { enter });
+    traverse(program, { 
+      enter(node) {
+        if (
+          ['BinaryExpression', 'AssignmentExpression', 'CallExpression'].includes(
+            node.type
+          )
+        ) {
+          operatorsCount++;
+        }
+    }});
 
     return { value: operatorsCount };
   }
