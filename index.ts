@@ -3,6 +3,7 @@ import NumberOfInputOutputParameters from './src/metrics/NumberOfInputOutputPara
 import HansonMetric from './src/metrics/HansonMetric';
 // @ts-ignore
 import * as Styx from 'styx';
+import MaintainabilityIndex from './src/metrics/MaintainabilityIndex';
 
 console.log('Starting...');
 
@@ -113,3 +114,4 @@ const program = parser.parse(text, {
 const programFlow = Styx.parse(program.program);
 
 console.log(new HansonMetric().run(program, programFlow));
+console.log(new MaintainabilityIndex().run(program, programFlow));
