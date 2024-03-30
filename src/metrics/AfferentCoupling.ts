@@ -59,14 +59,14 @@ export default class AfferentCoupling implements IMetric {
 
           traverse(ast, { 
             enter(node) {
-              if (node.type === 'ImportSpecifier') {
-                if (classesInTargetModule.includes((node.imported as Identifier).name)) {
-                  afferentCoupling++;
-                }
-              }
-              if (node.type === 'ImportDefaultSpecifier') {
-                if (classesInTargetModule.includes((node.local as Identifier).name)) {
-                  afferentCoupling++;
+              if (node.type === 'ImportDeclaration' && node.source.value.includes(targetModulePath.split('/').at(-1) as string)) {
+                for (const specifier of node.specifiers) {
+                  if (specifier.type === 'ImportSpecifier' && classesInTargetModule.includes((specifier.imported as Identifier).name)) {
+                    afferentCoupling++;
+                  }
+                  if (specifier.type === 'ImportDefaultSpecifier' && classesInTargetModule.includes((specifier.local as Identifier).name)) {
+                    afferentCoupling++;
+                  }
                 }
               }
           }});

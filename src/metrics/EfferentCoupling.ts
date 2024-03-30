@@ -1,6 +1,7 @@
-import { IMetric } from "../types";
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import { IBlob, IMetric, IModule } from "../types";
+import { getAllBlobsFromTree } from "../utils";
+import { parse } from '@babel/parser';
+import { Identifier, traverse } from '@babel/types';
 
 export default class EfferentCoupling implements IMetric {
   private _name = 'Efferent coupling';
@@ -19,9 +20,34 @@ export default class EfferentCoupling implements IMetric {
     return this._scope as any;
   }
 
-  public run(program: ParseResult<File>, className: string) {
+  public run(program: IModule, targetModulePath: string) {
+    let targetModule = null;
+    let efferentCoupling = 0;
+
+    for (const module of program.trees) {
+      if (module.path === targetModulePath) {
+        targetModule = module;
+        const _classesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, 'ts');
+
+        for (const blob of _classesInTargetModule) {
+          const ast = parse(blob.content, { 
+            plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+          });
+
+          const cdUpsToGoOutsideModule = blob.path.split('/').length - targetModulePath.split('/').length;
+
+          traverse(ast, { 
+            enter(node) {
+              if (node.type === 'ImportDeclaration') {
+                if (node.source.value.includes('@') || (node.source.value.match(/..\//g) || []).length >= cdUpsToGoOutsideModule) {
+                  efferentCoupling++;
+                }
+              }
+          }});
+        }
+      }
+    }
     
-    
-    return { value: 0 };
+    return { value: efferentCoupling };
   } 
 }
