@@ -15,9 +15,6 @@
 		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"paths": {
-			"@/*": ["./src/*"]
-		}
 	},
 	"exclude": ["node_modules", "build"]
 }

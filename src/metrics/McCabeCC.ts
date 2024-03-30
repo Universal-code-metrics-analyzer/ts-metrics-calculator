@@ -1,4 +1,4 @@
-import { IMetric } from '@/types';
+import { IMetric } from '../types';
 // @ts-ignore
 import * as Styx from 'styx';
 

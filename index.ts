@@ -1,9 +1,28 @@
 import parser from '@babel/parser';
-import NumberOfInputOutputParameters from './src/metrics/NumberOfInputOutputParameters';
-import HansonMetric from './src/metrics/HansonMetric';
-// @ts-ignore
-import * as Styx from 'styx';
-import MaintainabilityIndex from './src/metrics/MaintainabilityIndex';
+import * as fs from 'fs';
+import { findPathInFileTree, getAllBlobsFromTree } from './src/utils';
+import { IBlob, IModule } from './src/types';
+import { Identifier, traverse } from '@babel/types';
+import AfferentCoupling from './src/metrics/AfferentCoupling';
+
+const projIndex = process.argv.indexOf('--proj');
+
+if (projIndex === -1) {
+  console.error('Error: please, specify the path project JSON tree to analyze');
+  process.exit(1);
+}
+
+const confIndex = process.argv.indexOf('--conf');
+
+if (confIndex === -1) {
+  console.error('Error: please, specify the path to configuration JSON file');
+  process.exit(1);
+}
+
+const project: IModule = JSON.parse(fs.readFileSync(process.argv[projIndex + 1]).toString());
+
+console.log(new AfferentCoupling().run(findPathInFileTree('tests', project) as IModule, 'tests/module1'));
+
 
 console.log('Starting...');
 
@@ -19,91 +38,6 @@ const dammit = (chpok) => {
 console.log(dammit(foo));
 `;
 
-// const text = `
-// class A {
-//   var1 = 1
-//   var2 = 'bla'
-
-//   constructor(param) {
-
-//   }
-
-//   func1(param) {
-
-//   }
-
-//   func2(param) {
-//     return this.var1
-//   }
-// }
-
-// class B {
-
-// }
-
-// class C {
-
-// }
-
-// class D {
-
-// }
-// `;
-
-// class A {
-//   var1 = 1
-//   var2 = 'bla'
-//   var3 = new C(this.var1)
-//   var4 = new D(this.var2)
-
-//   constructor() {
-
-//   }
-
-//   func(param: D) {
-//     return this.var1 * param.func()
-//   }
-// }
-
-// class B {
-//   var1 = 1
-//   var2 = 'bla'
-
-//   constructor(param) {
-
-//   }
-
-//   func(param: A) {
-//     return this.var1 * param.func()
-//   }
-// }
-
-// class C {
-//   var1 = 1
-//   var2 = 'bla'
-
-//   constructor(param) {
-
-//   }
-
-//   func(param) {
-//     return this.var1 * param.func()
-//   }
-// }
-
-// class D {
-//   var1 = 1
-//   var2 = 'bla'
-
-//   constructor(param) {
-
-//   }
-
-//   func() {
-//     return this.var1 + this.
-//   }
-// }
-
 const program = parser.parse(text, {
   tokens: true,
   plugins: [
@@ -111,7 +45,7 @@ const program = parser.parse(text, {
   ]
 });
 
-const programFlow = Styx.parse(program.program);
+// const programFlow = Styx.parse(program.program);
 
-console.log(new HansonMetric().run(program, programFlow));
-console.log(new MaintainabilityIndex().run(program, programFlow));
+// console.log(new HansonMetric().run(program, programFlow));
+// console.log(new MaintainabilityIndex().run(program, programFlow));

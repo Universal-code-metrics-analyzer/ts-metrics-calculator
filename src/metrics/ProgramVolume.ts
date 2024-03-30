@@ -1,4 +1,4 @@
-import { IMetric } from "@/types";
+import { IMetric } from "../types";
 import ImplemetationLength from './ImplementationLength';
 import ProgramDictionary from './ProgramDictionary';
 import { ParseResult } from '@babel/parser';

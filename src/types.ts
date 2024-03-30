@@ -5,7 +5,7 @@ export interface IMetric {
   name: string;
   info: string;
   scope: 'any' | 'module' | 'class' | 'function';
-  run: (program: ParseResult<File>, ...args: any[]) => IMetricResult;
+  run: (program: any, ...args: any[]) => IMetricResult;
 }
 
 export interface IMetricResult {
@@ -25,7 +25,10 @@ export interface IBlob extends IFileTreeNode {
 
 export interface IModule extends IFileTreeNode {
   trees: IModule[];
-  blobs: {
+  blobs: IBlob[];
+}
 
-  }[];
+export interface IConfig {
+  rootDir?: string;
+  extentions: Array<'ts' | 'js'>;
 }

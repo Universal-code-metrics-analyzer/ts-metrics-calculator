@@ -1,4 +1,4 @@
-import { IMetric } from "@/types";
+import { IMetric } from "../types";
 import NumberOfInputOutputParameters from './NumberOfInputOutputParameters';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';

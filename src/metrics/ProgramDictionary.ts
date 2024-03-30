@@ -1,4 +1,4 @@
-import { IMetric } from "@/types";
+import { IMetric } from "../types";
 import TotalNumberOfUniqueOperands from './TotalNumberOfUniqueOperands';
 import TotalNumberOfUniqueOperators from './TotalNumberOfUniqueOperators';
 import { ParseResult } from '@babel/parser';

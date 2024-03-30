@@ -1,4 +1,4 @@
-import { IMetric } from '@/types';
+import { IMetric } from '../types';
 import { ParseResult } from '@babel/parser';
 import { File, traverse } from '@babel/types';
 

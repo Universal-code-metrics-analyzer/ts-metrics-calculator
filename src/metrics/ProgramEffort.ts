@@ -1,4 +1,4 @@
-import { IMetric } from "@/types";
+import { IMetric } from "../types";
 import PotentialProgramVolume from './PotentialProgramVolume';
 import ProgramLevel from './ProgramLevel';
 import { ParseResult } from '@babel/parser';

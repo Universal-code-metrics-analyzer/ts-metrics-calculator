@@ -1,4 +1,4 @@
-import { IMetric } from '@/types';
+import { IMetric } from '../types';
 import McCabeCC from './McCabeCC';
 import NumberOfHansonOperators from './NumberOfHansonOperators';
 // @ts-ignore
