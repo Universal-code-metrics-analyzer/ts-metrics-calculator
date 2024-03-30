@@ -9,3 +9,9 @@ export default class A {
     return param.prop1 + this.prop1;
   }
 }
+
+export abstract class AA {
+  prop1 = 'blabla'
+
+  func() {}
+}

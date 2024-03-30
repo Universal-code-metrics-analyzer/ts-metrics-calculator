@@ -1,7 +1,7 @@
 import { IBlob, IMetric, IModule } from "../types";
 import { getAllBlobsFromTree } from "../utils";
 import { parse } from '@babel/parser';
-import { Identifier, traverse } from '@babel/types';
+import { traverse } from '@babel/types';
 
 export default class EfferentCoupling implements IMetric {
   private _name = 'Efferent coupling';
@@ -45,6 +45,7 @@ export default class EfferentCoupling implements IMetric {
               }
           }});
         }
+        break;
       }
     }
     

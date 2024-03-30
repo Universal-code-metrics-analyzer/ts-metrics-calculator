@@ -5,6 +5,7 @@ import { IBlob, IModule } from './src/types';
 import { Identifier, traverse } from '@babel/types';
 import AfferentCoupling from './src/metrics/AfferentCoupling';
 import EfferentCoupling from './src/metrics/EfferentCoupling';
+import Abstractness from './src/metrics/Abstractness';
 
 const projIndex = process.argv.indexOf('--proj');
 
@@ -22,7 +23,7 @@ if (confIndex === -1) {
 
 const project: IModule = JSON.parse(fs.readFileSync(process.argv[projIndex + 1]).toString());
 
-console.log(new EfferentCoupling().run(findPathInFileTree('tests', project) as IModule, 'tests/module1'));
+console.log(new Abstractness().run(findPathInFileTree('tests', project) as IModule, 'tests/module1'));
 
 
 console.log('Starting...');
