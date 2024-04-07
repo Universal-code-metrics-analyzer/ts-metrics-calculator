@@ -32,7 +32,6 @@ export default class WeightedMethodsPerClass implements IMetric {
           for (const item of node.body) {
             //@ts-ignore
             if (item.type === 'MethodDefinition') {
-              console.log('bla');
               //@ts-ignore
               const programFlow = Styx.parse({
                 type: 'Program',
