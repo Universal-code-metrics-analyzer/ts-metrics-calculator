@@ -27,7 +27,7 @@ export default class EfferentCoupling implements IMetric {
     for (const module of program.trees) {
       if (module.path === targetModulePath) {
         targetModule = module;
-        const _classesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, 'ts');
+        const _classesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, ['ts', 'js']);
 
         for (const blob of _classesInTargetModule) {
           const ast = parse(blob.content, { 

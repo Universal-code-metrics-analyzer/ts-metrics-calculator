@@ -26,7 +26,7 @@ export default class Abstractness implements IMetric {
     let numberOfAbstractClassesAndInterfaces = 0;
 
     const targetModule = findPathInFileTree(targetModulePath, program) as IModule;
-    const filesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, 'ts');
+    const filesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, ['ts', 'js']);
 
     for (const file of filesInTargetModule) {
       const ast = parse(file.content, { 

@@ -1,6 +1,6 @@
 import { IBlob, IFileTreeNode, IModule } from "./types";
 
-export function findPathInFileTree(path: string, tree: IModule): IModule | IFileTreeNode | null {
+export function findPathInFileTree(path: string, tree: IModule): IModule | IBlob | null {
   let result = null;
   if (tree.path === path) {
     return tree;
@@ -21,18 +21,18 @@ export function findPathInFileTree(path: string, tree: IModule): IModule | IFile
   return result;
 }
 
-export function getAllBlobsFromTree(tree: IModule, extention: string): IBlob[] {
+export function getAllBlobsFromTree(tree: IModule, extentions: string[]): IBlob[] {
   let result: IBlob[] = [];
 
   if (tree) {
     if (tree.trees) {
       for (const node of tree.trees) {
-        result = result.concat(getAllBlobsFromTree(node, extention));
+        result = result.concat(getAllBlobsFromTree(node, extentions));
       }
     }
   
     for (const node of tree.blobs) {
-      if (node.name.split('.').at(-1) === extention) {
+      if (extentions.includes(node.name.split('.').at(-1) as string)) {
         result.push(node);
       }
     }
