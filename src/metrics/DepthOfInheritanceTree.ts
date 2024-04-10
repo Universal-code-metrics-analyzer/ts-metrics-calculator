@@ -73,7 +73,6 @@ export default class DepthOfInheritanceTree implements IMetric {
                     }
                   }
 
-
                   _depth = getDepth(program, absolutePath, _depth + 1);
                 }
                 break;

@@ -10,6 +10,7 @@ import WeightedMethodsPerClass from './src/metrics/WeightedMethodsPerClass';
 // @ts-ignore
 import * as Styx from 'styx';
 import DepthOfInheritanceTree from './src/metrics/DepthOfInheritanceTree';
+import NumberOfChild from './src/metrics/NumberOfChild';
 
 const projIndex = process.argv.indexOf('--proj');
 
@@ -27,7 +28,7 @@ if (confIndex === -1) {
 
 const project: IModule = JSON.parse(fs.readFileSync(process.argv[projIndex + 1]).toString());
 
-console.log(new DepthOfInheritanceTree().run(findPathInFileTree('tests', project) as IModule, 'tests/module1/A2.ts'));
+console.log(new NumberOfChild().run(findPathInFileTree('tests', project) as IModule, 'tests/module1/A1.ts'));
 
 
 // console.log('Starting...');
