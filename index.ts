@@ -12,6 +12,7 @@ import * as Styx from 'styx';
 import DepthOfInheritanceTree from './src/metrics/DepthOfInheritanceTree';
 import NumberOfChild from './src/metrics/NumberOfChild';
 import CouplingBetweenObjectClasses from './src/metrics/CouplingBetweenObjectClasses';
+import LackOfCohesionOfMethods from './src/metrics/LackOfCohesionOfMethods';
 
 // const projIndex = process.argv.indexOf('--proj');
 
@@ -38,12 +39,34 @@ const text = `
 import { B } from "../module2/B";
 import { C } from "../module3/C";
 
-export default class A {
+export class A {
   prop1 = 'blabla'
   prop2 = new B();
+  prop3 = 123;
+  prop4 = 456;
 
-  func(param: C) {
-    return param.prop1 + this.prop1;
+  func1(param: C) {
+    return param.prop1.concat(this.prop1);
+  }
+
+  func2() {
+    let foo = this.prop1 + this.prop2;
+  }
+
+  func3() {
+    this.prop3 = this.prop3 + this.prop4;
+  }
+
+  func4() {
+    let foo = this.prop1 + this.prop4;
+  }
+
+  func5() {
+    let foo = this.prop2 + this.prop3;
+  }
+
+  func6() {
+    return this.prop1 + this.prop2;
   }
 }
 `;
@@ -58,7 +81,7 @@ const program = parser.parse(text, {
 
 // //const programFlow = Styx.parse(program.program);
 
-console.log(new CouplingBetweenObjectClasses().run(program));
+console.log(new LackOfCohesionOfMethods().run(program));
 
 // // console.log(new HansonMetric().run(program, programFlow));
 // // console.log(new MaintainabilityIndex().run(program, programFlow));

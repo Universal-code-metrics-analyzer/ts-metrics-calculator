@@ -40,18 +40,18 @@ export default class CouplingBetweenObjectClasses implements IMetric {
         }
     }});
 
-    if (!isClass) throw Error("This file does not include any classes");
-
-    traverse(program, { 
-      enter(node) {
-        if (node.type === 'Identifier') {
-          const indexInImportedClasses = importedClasses.findIndex(elem => elem.name === node.name && !elem.isUsed);
-          if (indexInImportedClasses !== -1) {
-            numberOfUsages++;
-            importedClasses[indexInImportedClasses].isUsed = true;
+    if (isClass) {
+      traverse(program, { 
+        enter(node) {
+          if (node.type === 'Identifier') {
+            const indexInImportedClasses = importedClasses.findIndex(elem => elem.name === node.name && !elem.isUsed);
+            if (indexInImportedClasses !== -1) {
+              numberOfUsages++;
+              importedClasses[indexInImportedClasses].isUsed = true;
+            }
           }
-        }
-    }});
+      }});
+    }
     
     return { value: numberOfUsages };
   } 

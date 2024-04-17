@@ -1,37 +1,13 @@
-import { IMetric } from "../types";
-import { traverse } from '@babel/types';
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+export const text = `
+import { B } from "../module2/B";
+import { C } from "../module3/C";
 
-export default class CouplingBetweenObjectClasses implements IMetric {
-  private _name = 'Coupling Between Object Classes';
-  private _info = 'Coupling Between Object Classes';
-  private _scope = 'class';
+export default class A {
+  prop1 = 'blabla'
+  prop2 = new B();
 
-  public get name() {
-    return this._name;
+  func(param: C) {
+    return param.prop1 + this.prop1;
   }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(program: ParseResult<File>) {
-
-    // just get all imported and used classes
-    const importedClasses = [];
-
-    traverse(program, { 
-      enter(node) {
-        if (node.type === 'ImportDeclaration') {
-          
-        }
-    }});
-    
-    return { value: importedClasses.length };
-  } 
 }
+`;
