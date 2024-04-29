@@ -4,7 +4,7 @@ import EfferentCoupling from "./EfferentCoupling";
 
 export default class Instability implements IMetric {
   private _name = 'Instability';
-  private _info = 'Instability';
+  private _info = 'Instability (Martin metric)';
   private _scope = 'module';
 
   public get name() {

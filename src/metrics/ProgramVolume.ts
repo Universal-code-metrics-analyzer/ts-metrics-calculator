@@ -7,7 +7,7 @@ import { File } from '@babel/types';
 export default class ProgramVolume implements IMetric {
   private _name = 'Program volume';
   private _info = 'Program volume';
-  private _scope = 'any';
+  private _scope = 'function';
 
   public get name() {
     return this._name;

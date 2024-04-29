@@ -5,7 +5,7 @@ import { Identifier, traverse } from '@babel/types';
 
 export default class AfferentCoupling implements IMetric {
   private _name = 'Afferent coupling';
-  private _info = 'Afferent coupling';
+  private _info = 'Afferent coupling (Martin metric)';
   private _scope = 'module';
 
   public get name() {

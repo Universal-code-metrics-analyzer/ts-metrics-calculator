@@ -6,8 +6,8 @@ import { File } from '@babel/types';
 
 export default class ImplemetationLength implements IMetric {
   private _name = 'Implementation length';
-  private _info = 'Implementation length';
-  private _scope = 'any';
+  private _info = 'Implementation length = TotalNumberOfOperands + TotalNumberOfOperators';
+  private _scope = 'function';
 
   public get name() {
     return this._name;

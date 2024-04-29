@@ -4,7 +4,7 @@ import Abstractness from "./Abstractness";
 
 export default class NormalizedDistanceFromMainSequence implements IMetric {
   private _name = 'Normalized Distance From Main Sequence';
-  private _info = 'Normalized Distance From Main Sequence';
+  private _info = 'Normalized distance from main sequence (Martin metric)';
   private _scope = 'module';
 
   public get name() {

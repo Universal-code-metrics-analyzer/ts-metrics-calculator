@@ -5,7 +5,7 @@ import { traverse } from '@babel/types';
 
 export default class NumberOfChild implements IMetric {
   private _name = 'Number Of Child';
-  private _info = 'Number Of Child';
+  private _info = 'Number of children for the given class';
   private _scope = 'module';
 
   public get name() {

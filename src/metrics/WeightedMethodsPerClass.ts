@@ -7,7 +7,7 @@ import McCabeCC from "./McCabeCC";
 
 export default class WeightedMethodsPerClass implements IMetric {
   private _name = 'Weighted Methods Per Class';
-  private _info = 'Weighted Methods Per Class';
+  private _info = 'Weighted Methods Per Class = Σi( McCabeCC( Method_i ) )';
   private _scope = 'class';
 
   public get name() {

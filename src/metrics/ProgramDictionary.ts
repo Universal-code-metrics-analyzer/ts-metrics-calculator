@@ -6,8 +6,8 @@ import { File } from '@babel/types';
 
 export default class ProgramDictionary implements IMetric {
   private _name = 'Program Dictionary';
-  private _info = 'Program Dictionary';
-  private _scope = 'any';
+  private _info = 'Program Dictionary = TotalNumberOfUniqueOperands + TotalNumberOfUniqueOperands';
+  private _scope = 'function';
 
   public get name() {
     return this._name;

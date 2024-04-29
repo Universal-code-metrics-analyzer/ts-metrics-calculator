@@ -5,8 +5,8 @@ import { File } from '@babel/types';
 
 export default class ProgramingTime implements IMetric {
   private _name = 'Programing Time';
-  private _info = 'Programing Time';
-  private _scope = 'any';
+  private _info = 'Programing Time = ProgramEffort / Straud number (average value of Straud number is 18). Represents hours required to write a given program';
+  private _scope = 'function';
 
   public get name() {
     return this._name;

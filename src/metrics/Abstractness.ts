@@ -5,7 +5,7 @@ import { traverse } from "@babel/types";
 
 export default class Abstractness implements IMetric {
   private _name = 'Abstractness';
-  private _info = 'Abstractness';
+  private _info = 'Abstractness (Martin metric)';
   private _scope = 'module';
 
   public get name() {

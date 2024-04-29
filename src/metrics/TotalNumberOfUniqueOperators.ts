@@ -4,8 +4,8 @@ import { File } from '@babel/types';
 
 export default class TotalNumberOfUniqueOperators implements IMetric {
   private _name = 'Total number of unique operators';
-  private _info = 'Total number of unique operators';
-  private _scope = 'any';
+  private _info = 'Total number of unique operators in the program';
+  private _scope = 'function';
 
   public get name() {
     return this._name;

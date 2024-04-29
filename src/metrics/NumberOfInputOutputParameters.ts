@@ -4,7 +4,7 @@ import { ArrowFunctionExpression, File, FunctionDeclaration, traverse } from '@b
 
 export default class NumberOfInputOutputParameters implements IMetric {
   private _name = 'Number of input & output parameters';
-  private _info = 'Number of input & output parameters';
+  private _info = 'Number of input & output parameters in the function';
   private _scope = 'function';
 
   public get name() {

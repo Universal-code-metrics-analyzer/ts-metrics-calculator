@@ -6,8 +6,8 @@ import { File } from '@babel/types';
 
 export default class ProgramEffort implements IMetric {
   private _name = 'Program effort';
-  private _info = 'Program effort';
-  private _scope = 'any';
+  private _info = 'Program effort = PotentialProgramVolume / ProgramLevel';
+  private _scope = 'function';
 
   public get name() {
     return this._name;
