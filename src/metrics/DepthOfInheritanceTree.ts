@@ -84,6 +84,6 @@ export default class DepthOfInheritanceTree implements IMetric {
       return _depth;
     }    
     
-    return { value: depthOfInheritanceTree };
+    return { value: depthOfInheritanceTree, description: "A low number for depth implies less complexity but also the possibility of less code reuse through inheritance. A high number for depth implies more potential for code reuse through inheritance but also higher complexity with a higher probability of errors in the code." };
   } 
 }

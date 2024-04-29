@@ -1,0 +1,203 @@
+{
+  "rootDir": "/",
+  "extentions": ["js", "ts"],
+  "metrics": [
+    {
+      "name": "Abstractness",
+      "intervals": [
+        {
+          "valueMin": 0,
+          "valueMax": 0.2, 
+          "description": "Almost all classes are non-abstract. Revise your package to ensure enough reusability and maintainability."
+        },
+        {
+          "valueMin": 0.2001,
+          "valueMax": 1, 
+          "description": "The package has enough abstract classes/interfaces. The more abstract classes the package has, the easier it is to maintain and reuse"
+        }
+      ]
+    },
+    {
+      "name": "AfferentCoupling",
+      "intervals": []
+    },
+    {
+      "name": "CouplingBetweenObjectClasses",
+      "intervals": [
+        {
+          "valueMin": 0,
+          "valueMax": 14, 
+          "description": "OK"
+        },
+        {
+          "valueMin": 15,
+          "valueMax": null, 
+          "description": "The coupling is too high, this class is diffucult to maintain"
+        }
+      ]
+    },
+    {
+      "name": "DepthOfInheritanceTree",
+      "intervals": [
+        {
+          "valueMin": null,
+          "valueMax": 5, 
+          "description": "OK"
+        },
+        {
+          "valueMin": 6,
+          "valueMax": null, 
+          "description": "Depth of inheritance is too high. Try to lower it to decrease code complexity and probability of errors in the code"
+        }
+      ]
+    },
+    {
+      "name": "EfferentCoupling",
+      "intervals": []
+    },
+    {
+      "name": "HansonMetric",
+      "intervals": []
+    },
+    {
+      "name": "ImplementationLength",
+      "intervals": []
+    },
+    {
+      "name": "Instability",
+      "intervals": [
+        {
+          "valueMin": 0,
+          "valueMax": 0.3, 
+          "description": "The package is stable, it has enough incoming dependencies and depends upond small number of other packages"
+        },
+        {
+          "valueMin": 0.3001,
+          "valueMax": 1, 
+          "description": "The package is instable, it depends upond significant number of other packages"
+        }
+      ]
+    },
+    {
+      "name": "LackOfCohesionOfMethods",
+      "intervals": [
+        {
+          "valueMin": 0,
+          "valueMax": 5, 
+          "description": "The class has good cohesion, methods are tend to use mutual class attributes"
+        },
+        {
+          "valueMin": 5,
+          "valueMax": null, 
+          "description": "Revise your class, probably you can split it into multiple classes with better cohesion"
+        }
+      ]
+    },
+    {
+      "name": "MaintainabilityIndex",
+      "intervals": [
+        {
+          "valueMin": 0,
+          "valueMax": 9, 
+          "description": "RED level"
+        },
+        {
+          "valueMin": 10,
+          "valueMax": 19, 
+          "description": "Yellow level"
+        },
+        {
+          "valueMin": 20,
+          "valueMax": 100, 
+          "description": "Green level"
+        }
+      ]
+    },
+    {
+      "name": "McCabeCC",
+      "intervals": [
+        {
+          "valueMin": 1,
+          "valueMax": 10, 
+          "description": "Simple procedure, little risk"
+        },
+        {
+          "valueMin": 11,
+          "valueMax": 20, 
+          "description": "Normal procedure, moderate risk"
+        },
+        {
+          "valueMin": 21,
+          "valueMax": 50, 
+          "description": "Complex procedure, high risk"
+        },
+        {
+          "valueMin": 51,
+          "valueMax": null, 
+          "description": "Untestable procedure, very high risk"
+        }
+      ]
+    },
+    {
+      "name": "NormalizedDistanceFromMainSequence",
+      "intervals": [
+        {
+          "valueMin": 0,
+          "valueMax": 0.2, 
+          "description": "Good and balanced package"
+        },
+        {
+          "valueMin": 0.2001,
+          "valueMax": 0.7999, 
+          "description": "The package is not so good, ensure that it is has enough abstractness and stability"
+        },
+        {
+          "valueMin": 0.8,
+          "valueMax": 1, 
+          "description": "Poor package, it is hard to change and extend OR it is too abstract and is not used by any other packages"
+        }
+      ]
+    },
+    {
+      "name": "NumberOfChild",
+      "intervals": []
+    },
+    {
+      "name": "NumberOfInputOutputParameters",
+      "intervals": []
+    },
+    {
+      "name": "NumberOfMethods",
+      "intervals": []
+    },
+    {
+      "name": "ProgrammingTime",
+      "intervals": []
+    },
+    {
+      "name": "ProgramLevel",
+      "intervals": [
+        {
+          "valueMin": 0,
+          "valueMax": 1, 
+          "description": "The closer this value to 1, the better is the program (the more compact and economical is the use of the language)"
+        }
+      ]
+    },
+    {
+      "name": "WeightedMethodsPerClass",
+      "intervals": [
+        {
+          "valueMin": 1,
+          "valueMax": 50, 
+          "description": "Small class, easy to maintain"
+        },
+        {
+          "valueMin": 51,
+          "valueMax": null, 
+          "description": "The class is big, ensure and double check its maintainability"
+        }
+      ]
+    }
+  ]
+}

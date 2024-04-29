@@ -53,6 +53,6 @@ export default class CouplingBetweenObjectClasses implements IMetric {
       }});
     }
     
-    return { value: numberOfUsages };
+    return { value: numberOfUsages, description: "The less is coupling, the more testable and maintainable is the class" };
   } 
 }

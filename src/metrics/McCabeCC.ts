@@ -21,13 +21,12 @@ export default class McCabeCC implements IMetric {
   }
 
   public run(programFlow: typeof Styx.parse) {
-    const m = programFlow.flowGraph.edges.length,
-      n = programFlow.flowGraph.nodes.length;
+    const m = programFlow.flowGraph.edges.length, n = programFlow.flowGraph.nodes.length;
+    const result = m - n + 2;
 
     return {
-      m,
-      n,
-      value: m - n + 2,
+      value: result,
+      description: "1 - 10: Simple procedure, little risk. \n11 - 20: More complex, moderate risk. \n21 - 50: Complex, high risk. \n> 50: Untestable code, very high risk"
     };
   }
 }
