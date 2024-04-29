@@ -1,14 +1,20 @@
-import { IMetric } from "../types";
+import { IMetric, IntervalConfig } from "../types";
 import { ParseResult } from '@babel/parser';
 import { traverse, File } from '@babel/types';
 // @ts-ignore
 import * as Styx from 'styx';
 import McCabeCC from "./McCabeCC";
+import { returnMetricValueWithDesc } from "../utils";
 
 export default class WeightedMethodsPerClass implements IMetric {
   private _name = 'Weighted Methods Per Class';
   private _info = 'Weighted Methods Per Class = Σi( McCabeCC( Method_i ) )';
   private _scope = 'class';
+  private _intervals: IntervalConfig[] = [];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config;
+  }
 
   public get name() {
     return this._name;
@@ -23,8 +29,8 @@ export default class WeightedMethodsPerClass implements IMetric {
   }
 
   public run(program: ParseResult<File>) {
-    
     let weightedMethodsPerClass = 0;
+    const intervals = this._intervals;
 
     traverse(program, { 
       enter(node) {
@@ -39,12 +45,12 @@ export default class WeightedMethodsPerClass implements IMetric {
                 body: item.value.body.body,
                 sourceType: 'script'
               });
-              weightedMethodsPerClass += new McCabeCC().run(programFlow).value;
+              weightedMethodsPerClass += new McCabeCC(intervals).run(programFlow).value;
             }
           }
         }
     }});
     
-    return { value: weightedMethodsPerClass };
+    return returnMetricValueWithDesc(weightedMethodsPerClass, intervals);
   } 
 }

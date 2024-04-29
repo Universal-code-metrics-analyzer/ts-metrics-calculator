@@ -1,4 +1,5 @@
-import { IMetric } from "../types";
+import { IMetric, IntervalConfig } from "../types";
+import { returnMetricValueWithDesc } from "../utils";
 import PotentialProgramVolume from './PotentialProgramVolume';
 import ProgramVolume from './ProgramVolume';
 import { ParseResult } from '@babel/parser';
@@ -8,6 +9,11 @@ export default class ProgramLevel implements IMetric {
   private _name = 'Program level';
   private _info = 'Program level = PotentialProgramVolume / ProgramVolume';
   private _scope = 'function';
+  private _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config
+  }
 
   public get name() {
     return this._name;
@@ -22,6 +28,7 @@ export default class ProgramLevel implements IMetric {
   }
 
   public run(program: ParseResult<File>) {
-    return { value: new PotentialProgramVolume().run(program).value / new ProgramVolume().run(program).value };
+    const value = new PotentialProgramVolume(this._intervals).run(program).value / new ProgramVolume(this._intervals).run(program).value;
+    return returnMetricValueWithDesc(value, this._intervals);
   } 
 }

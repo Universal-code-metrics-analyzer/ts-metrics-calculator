@@ -32,12 +32,14 @@ interface IConfig {
 }
 
 interface IMetricConfig {
-  name: string;     // metric name, must match classname of corresponding metric
-  intervals: {      // ORDERED list of intervals that allows to evalutate metric value
-    valueMin: number | null;
-    valueMax: number | null; 
-    description: string; 
-  }[];
+  name: string;                 // metric name, must match classname of corresponding metric
+  intervals: IntervalConfig[];  // ORDERED list of intervals that allows to evalutate metric value
 }
 
-export type { IMetric, IMetricResult, IFileTreeNode, IBlob, IModule, IConfig, IMetricConfig };
+interface IntervalConfig {
+  valueMin: number | null;
+  valueMax: number | null; 
+  description: string;
+}
+
+export type { IMetric, IMetricResult, IFileTreeNode, IBlob, IModule, IConfig, IMetricConfig, IntervalConfig };

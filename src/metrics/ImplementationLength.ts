@@ -1,4 +1,5 @@
-import { IMetric } from "../types";
+import { IMetric, IntervalConfig } from "../types";
+import { returnMetricValueWithDesc } from "../utils";
 import TotalNumberOfOperands from './TotalNumberOfOperands';
 import TotalNumberOfOperators from './TotalNumberOfOperators';
 import { ParseResult } from '@babel/parser';
@@ -8,6 +9,11 @@ export default class ImplemetationLength implements IMetric {
   private _name = 'Implementation length';
   private _info = 'Implementation length = TotalNumberOfOperands + TotalNumberOfOperators';
   private _scope = 'function';
+  private _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config
+  }
 
   public get name() {
     return this._name;
@@ -22,6 +28,7 @@ export default class ImplemetationLength implements IMetric {
   }
 
   public run(program: ParseResult<File>) {
-    return { value: new TotalNumberOfOperands().run(program).value + new TotalNumberOfOperators().run(program).value };
+    const value = new TotalNumberOfOperands(this._intervals).run(program).value + new TotalNumberOfOperators(this._intervals).run(program).value;
+    return returnMetricValueWithDesc(value, this._intervals);
   } 
 }

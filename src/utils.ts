@@ -1,4 +1,4 @@
-import { IBlob, IFileTreeNode, IModule } from "./types";
+import { IBlob, IMetricResult, IModule, IntervalConfig } from "./types";
 
 export function findPathInFileTree(path: string, tree: IModule): IModule | IBlob | null {
   let result = null;
@@ -39,4 +39,14 @@ export function getAllBlobsFromTree(tree: IModule, extentions: string[]): IBlob[
   }
 
   return result;
+}
+
+export function returnMetricValueWithDesc(value: number, intervals: IntervalConfig[]): IMetricResult {
+  for (const interval of intervals) {
+    if (value >= (interval.valueMin === null ? Number.NEGATIVE_INFINITY : interval.valueMin) 
+      && value <= (interval.valueMax === null ? Number.POSITIVE_INFINITY : interval.valueMax)) {
+      return { value, description: interval.description };
+    }
+  }
+  return { value, description: intervals[0].description };
 }

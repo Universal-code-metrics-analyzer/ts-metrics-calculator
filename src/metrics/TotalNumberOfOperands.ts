@@ -1,11 +1,17 @@
-import { IMetric } from "../types";
+import { IMetric, IntervalConfig } from "../types";
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
+import { returnMetricValueWithDesc } from "../utils";
 
 export default class TotalNumberOfOperands implements IMetric {
   private _name = 'Total number of operands';
   private _info = 'Total number of operands in the program';
   private _scope = 'function';
+  private _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config
+  }
 
   public get name() {
     return this._name;
@@ -29,6 +35,6 @@ export default class TotalNumberOfOperands implements IMetric {
           && token.value !== 'let') operandsCount++;
       }
     }
-    return { value: operandsCount };
+    return returnMetricValueWithDesc(operandsCount, this._intervals);
   } 
 }

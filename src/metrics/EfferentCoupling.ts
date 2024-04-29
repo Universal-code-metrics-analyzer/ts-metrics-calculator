@@ -1,5 +1,5 @@
-import { IBlob, IMetric, IModule } from "../types";
-import { getAllBlobsFromTree } from "../utils";
+import { IBlob, IMetric, IModule, IntervalConfig } from "../types";
+import { getAllBlobsFromTree, returnMetricValueWithDesc } from "../utils";
 import { parse } from '@babel/parser';
 import { traverse } from '@babel/types';
 
@@ -7,6 +7,11 @@ export default class EfferentCoupling implements IMetric {
   private _name = 'Efferent coupling';
   private _info = 'Efferent coupling (Martin metric)';
   private _scope = 'module';
+  private _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config
+  }
 
   public get name() {
     return this._name;
@@ -49,6 +54,6 @@ export default class EfferentCoupling implements IMetric {
       }
     }
     
-    return { value: efferentCoupling };
+    return returnMetricValueWithDesc(efferentCoupling, this._intervals);
   } 
 }

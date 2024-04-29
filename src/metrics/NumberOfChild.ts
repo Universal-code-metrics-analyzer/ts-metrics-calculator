@@ -1,5 +1,5 @@
-import { IBlob, IMetric, IModule } from "../types";
-import { findPathInFileTree, getAllBlobsFromTree } from "../utils";
+import { IBlob, IMetric, IModule, IntervalConfig } from "../types";
+import { findPathInFileTree, getAllBlobsFromTree, returnMetricValueWithDesc } from "../utils";
 import { parse } from '@babel/parser';
 import { traverse } from '@babel/types';
 
@@ -7,6 +7,11 @@ export default class NumberOfChild implements IMetric {
   private _name = 'Number Of Child';
   private _info = 'Number of children for the given class';
   private _scope = 'module';
+  private _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config
+  }
 
   public get name() {
     return this._name;
@@ -77,6 +82,6 @@ export default class NumberOfChild implements IMetric {
       }
     }
     
-    return { value: numberOfChildren };
+    return returnMetricValueWithDesc(numberOfChildren, this._intervals);
   } 
 }

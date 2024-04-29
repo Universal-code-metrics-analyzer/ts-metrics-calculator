@@ -1,12 +1,18 @@
-import { IMetric } from "../types";
+import { IMetric, IntervalConfig } from "../types";
 import { traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
+import { returnMetricValueWithDesc } from "../utils";
 
 export default class LackOfCohesionOfMethods implements IMetric {
   private _name = 'Lack Of Cohesion Of Methods';
   private _info = 'Lack Of Cohesion Of Methods';
   private _scope = 'class';
+  private _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config
+  }
 
   public get name() {
     return this._name;
@@ -74,17 +80,7 @@ export default class LackOfCohesionOfMethods implements IMetric {
     }
 
     let result = methodsPairs.length - (shareMutualPropsCounter * 2);
-    
-    if (result <= 0) {
-      return { 
-        value: 0, 
-        description: "The class has good cohesion and methods tend to use mutual attributes." 
-      };
-    } else {
-      return { 
-        value: result, 
-        description: "The class has bad cohesion and most methods do not use mutual attributes. Revise your class, probably you can split it into multiple classes with better cohesion." 
-      };
-    } 
+
+    return returnMetricValueWithDesc(result <= 0 ? 0 : result, this._intervals);
   } 
 }

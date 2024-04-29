@@ -1,12 +1,18 @@
-import { IMetric } from "../types";
+import { IMetric, IntervalConfig } from "../types";
 import { traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
+import { returnMetricValueWithDesc } from "../utils";
 
 export default class CouplingBetweenObjectClasses implements IMetric {
   private _name = 'Coupling Between Object Classes';
   private _info = 'Coupling Between Object Classes';
   private _scope = 'class';
+  private _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config
+  }
 
   public get name() {
     return this._name;
@@ -53,6 +59,6 @@ export default class CouplingBetweenObjectClasses implements IMetric {
       }});
     }
     
-    return { value: numberOfUsages, description: "The less is coupling, the more testable and maintainable is the class" };
+    return returnMetricValueWithDesc(numberOfUsages, this._intervals);
   } 
 }
