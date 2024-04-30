@@ -42,4 +42,21 @@ interface IntervalConfig {
   description: string;
 }
 
-export type { IMetric, IMetricResult, IFileTreeNode, IBlob, IModule, IConfig, IMetricConfig, IntervalConfig };
+interface IFinalMetricResult {
+	metricName: string
+	resultScope: 'module' | 'class' | 'function'
+	subjectPath: string
+	value: number
+	description?: string
+}
+
+interface IBlobMetricsResults extends IFileTreeNode {
+	metricResults: IFinalMetricResult[];
+}
+
+interface ITreeMetricsResults extends IBlobMetricsResults {
+	trees: ITreeMetricsResults[];
+	blobs: IBlobMetricsResults[];
+}
+
+export type { IMetric, IMetricResult, IFileTreeNode, IBlob, IModule, IConfig, IMetricConfig, IntervalConfig, ITreeMetricsResults, IBlobMetricsResults, IFinalMetricResult };
