@@ -1,31 +1,16 @@
-import { IMetric, IntervalConfig } from "../types";
+import { AbstractMetric, IntervalConfig } from "../types";
 import { ParseResult } from '@babel/parser';
 import { traverse, File } from '@babel/types';
-// @ts-ignore
-import * as Styx from 'styx';
 import McCabeCC from "./McCabeCC";
 import { returnMetricValueWithDesc } from "../utils";
 
-export default class WeightedMethodsPerClass implements IMetric {
-  private _name = 'Weighted Methods Per Class';
-  private _info = 'Weighted Methods Per Class = Σi( McCabeCC( Method_i ) )';
-  private _scope = 'class';
-  private _intervals: IntervalConfig[] = [];
+export default class WeightedMethodsPerClass extends AbstractMetric<ParseResult<File>> {
+  readonly name = 'Weighted Methods Per Class';
+  readonly info = 'Weighted Methods Per Class = Σi( McCabeCC( Method_i ) )';
+  readonly scope = 'class';
 
   constructor(config: IntervalConfig[]) {
-    this._intervals = config;
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: ParseResult<File>) {
@@ -36,16 +21,19 @@ export default class WeightedMethodsPerClass implements IMetric {
       enter(node) {
         if (node.type === 'ClassBody') {
           for (const item of node.body) {
-            //@ts-ignore
+            //@ts-expect-error ignore
             if (item.type === 'MethodDefinition') {
-              //@ts-ignore
-              const programFlow = Styx.parse({
-                type: 'Program',
-                //@ts-ignore
-                body: item.value.body.body,
-                sourceType: 'script'
-              });
-              weightedMethodsPerClass += new McCabeCC(intervals).run(programFlow).value;
+              weightedMethodsPerClass += new McCabeCC(intervals).run({
+                type: 'File',
+                program: {
+                  type: 'Program',
+                  //@ts-expect-error ignore
+                  body: item.value.body.body,
+                  sourceType: 'script',
+                  directives: []
+                },
+                errors: program.errors
+              }).value;
             }
           }
         }

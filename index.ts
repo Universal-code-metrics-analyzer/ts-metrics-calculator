@@ -1,8 +1,11 @@
-import parser from '@babel/parser';
+import { parse } from '@babel/parser';
 import * as fs from 'fs';
 import { findPathInFileTree, getAllBlobsFromTree } from './src/utils';
-import { IBlob, IModule } from './src/types';
+import { AbstractMetric, IBlob, IConfig, IFileTreeNode, IFinalMetricResult, IModule, ITreeMetricsResults } from './src/types';
 import * as metrics from './src/metrics';
+import { traverse } from '@babel/types';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
 const helpIndex = process.argv.indexOf('--help');
 if (helpIndex !== -1) {
@@ -16,7 +19,7 @@ if (helpIndex !== -1) {
 const projIndex = process.argv.indexOf('--proj');
 
 if (projIndex === -1) {
-  console.error('Error: please, specify the path project JSON tree to analyze');
+  console.error("Error: please, specify the path project JSON tree to analyze");
   process.exit(1);
 }
 
@@ -28,12 +31,50 @@ if (confIndex === -1) {
 }
 
 const project: IModule = JSON.parse(fs.readFileSync(process.argv[projIndex + 1]).toString());
+const config: IConfig = JSON.parse(fs.readFileSync(process.argv[confIndex + 1]).toString());
+
+// -------------------------------
+
+const metricsInstances: AbstractMetric<IModule | ParseResult<File>>[] = [];
+for (const metric of config.metrics) {
+  try {
+    //@ts-ignore
+    metricsInstances.push(new metrics[metric.name](metric.intervals));
+  } catch (error) {
+    console.error("Error when reading configuration file. Make sure that the file has proper formatting and all specified metrics have the right name");
+    process.exit(1);
+  }
+}
+
+// -------------------------------
+
+const rootDir = findPathInFileTree(config.rootDir, project) as IModule;
+
 console.log('Started to calculate metrics...');
 
 // create the object for results
-const result = {
-  
-};
+const result: ITreeMetricsResults = {} as ITreeMetricsResults;
+
+// translate input tree to output tree
+function inputTreeToOutputTree(inputTree: IModule): ITreeMetricsResults {
+  return {
+    type: inputTree.type,
+    name: inputTree.path,
+    path: inputTree.path,
+    metricResults: [],
+    trees: inputTree.trees.map(elem => inputTreeToOutputTree(elem)),
+	  blobs: inputTree.blobs.map(elem => {
+      return {
+        type: elem.type,
+        name: elem.name,
+        path: elem.path,
+        metricResults: []
+      }
+    })
+  };
+}
+
+const outputTree = inputTreeToOutputTree(rootDir);
 
 // calculate all metrics with scope == module
 
@@ -42,7 +83,49 @@ const result = {
 
 // calculate all metrics with scope == function
 // TODO: procedure to get all functions with paths
+const blobs = getAllBlobsFromTree(rootDir, config.extentions);
+const metricResultsScopeFunction: IFinalMetricResult[] = [];
 
+for (const blob of blobs) {
+  const ast = parse(blob.content, { 
+    plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+  });
+  
+  traverse(ast, { 
+    enter(node) {
+      if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
+        for (const metric of metricsInstances) {
+          if (metric.scope === 'function') {
+            const result = metric.run({
+              type: 'File',
+              program: {
+                type: 'Program',
+                //@ts-expect-error ignore
+                body: node,
+                sourceType: 'script',
+                directives: []
+              },
+              errors: []
+            });
+
+            metricResultsScopeFunction.push({
+              metricName: metric.name,
+              resultScope: metric.scope,
+              subjectPath: node.id?.name as string,
+              value: result.value,
+              description: result.description
+            });
+          }
+        }
+      }
+  }});
+    
+  
+}
+
+console.log(metricResultsScopeFunction);
+
+  
 // calculate all 
 
 // create resulting file and write results

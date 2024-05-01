@@ -1,28 +1,15 @@
-import { IMetric, IntervalConfig } from "../types";
+import { AbstractMetric, IntervalConfig } from "../types";
 import { ParseResult } from '@babel/parser';
 import { traverse, File } from '@babel/types';
 import { returnMetricValueWithDesc } from "../utils";
 
-export default class NumberOfMethods implements IMetric {
-  private _name = 'Number Of Methods';
-  private _info = 'Number Of Methods';
-  private _scope = 'class';
-  private _intervals: IntervalConfig[];
-
+export default class NumberOfMethods extends AbstractMetric<ParseResult<File>> {
+  readonly name = 'Number Of Methods';
+  readonly info = 'Number Of Methods';
+  readonly scope = 'class';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: ParseResult<File>) {
@@ -33,7 +20,7 @@ export default class NumberOfMethods implements IMetric {
       enter(node) {
         if (node.type === 'ClassBody') {
           for (const item of node.body) {
-            //@ts-ignore
+            //@ts-expect-error ignore
             if (item.type === 'MethodDefinition') MethodsCount++;
           }
         }

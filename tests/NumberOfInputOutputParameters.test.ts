@@ -23,7 +23,7 @@ export default class NumberOfInputOutputParameters implements IMetric {
     let numberOfInputParams = 0;
     let isReturn = null;
 
-    let functions: Array<FunctionDeclaration | ArrowFunctionExpression> = [];
+    const functions: Array<FunctionDeclaration | ArrowFunctionExpression> = [];
 
     traverse(program, {
       enter(node) {

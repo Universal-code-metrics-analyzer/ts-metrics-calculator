@@ -22,7 +22,7 @@ import TotalNumberOfOperators from "./TotalNumberOfOperators";
 import TotalNumberOfUniqueOperands from "./TotalNumberOfUniqueOperands";
 import TotalNumberOfUniqueOperators from "./TotalNumberOfUniqueOperators";
 import WeightedMethodsPerClass from "./WeightedMethodsPerClass";
-import ProgramingTime from "./ProgrammingTime";
+import ProgrammingTime from "./ProgrammingTime";
 
 export { 
   Abstractness, 
@@ -43,7 +43,7 @@ export {
   ProgramDictionary, 
   ProgramEffort, 
   ProgramLevel, 
-  ProgramingTime,
+  ProgrammingTime,
   ProgramVolume, 
   TotalNumberOfOperators, 
   TotalNumberOfOperands, 

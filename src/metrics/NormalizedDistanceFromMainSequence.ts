@@ -1,28 +1,15 @@
-import { IMetric, IModule, IntervalConfig } from "../types";
+import { AbstractMetric, IModule, IntervalConfig } from "../types";
 import Instability from "./Instability";
 import Abstractness from "./Abstractness";
 import { returnMetricValueWithDesc } from "../utils";
 
-export default class NormalizedDistanceFromMainSequence implements IMetric {
-  private _name = 'Normalized Distance From Main Sequence';
-  private _info = 'Normalized distance from main sequence (Martin metric)';
-  private _scope = 'module';
-  private _intervals: IntervalConfig[];
-
+export default class NormalizedDistanceFromMainSequence extends AbstractMetric<IModule> {
+  readonly name = 'Normalized Distance From Main Sequence';
+  readonly info = 'Normalized distance from main sequence (Martin metric)';
+  readonly scope = 'module';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: IModule, targetModulePath: string) {

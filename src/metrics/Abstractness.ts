@@ -1,28 +1,15 @@
 import { parse } from "@babel/parser";
-import { IBlob, IMetric, IModule, IntervalConfig } from "../types";
+import { AbstractMetric, IBlob, IModule, IntervalConfig } from "../types";
 import { findPathInFileTree, getAllBlobsFromTree, returnMetricValueWithDesc } from "../utils";
 import { traverse } from "@babel/types";
 
-export default class Abstractness implements IMetric {
-  private _name = 'Abstractness';
-  private _info = 'Abstractness (Martin metric)';
-  private _scope = 'module';
-  private _intervals: IntervalConfig[];
-
+export default class Abstractness extends AbstractMetric<IModule> {
+  readonly name = 'Abstractness';
+  readonly info = 'Abstractness (Martin metric)';
+  readonly scope = 'module';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config;
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: IModule, targetModulePath: string) {

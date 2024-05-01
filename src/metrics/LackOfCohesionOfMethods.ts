@@ -1,29 +1,16 @@
-import { IMetric, IntervalConfig } from "../types";
+import { AbstractMetric, IntervalConfig } from "../types";
 import { traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
 import { returnMetricValueWithDesc } from "../utils";
 
-export default class LackOfCohesionOfMethods implements IMetric {
-  private _name = 'Lack Of Cohesion Of Methods';
-  private _info = 'Lack Of Cohesion Of Methods';
-  private _scope = 'class';
-  private _intervals: IntervalConfig[];
-
+export default class LackOfCohesionOfMethods extends AbstractMetric<ParseResult<File>> {
+  readonly name = 'Lack Of Cohesion Of Methods';
+  readonly info = 'Lack Of Cohesion Of Methods';
+  readonly scope = 'class';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: ParseResult<File>) {
@@ -40,7 +27,7 @@ export default class LackOfCohesionOfMethods implements IMetric {
               attributes.push(item);
             }
     
-            //@ts-ignore
+            //@ts-expect-error ignore
             if (item.type === 'MethodDefinition') {
               methods.push(item);
             }
@@ -59,17 +46,17 @@ export default class LackOfCohesionOfMethods implements IMetric {
       const propsInSecondMethod = new Set<string>();
       traverse(item[0].value, { 
         enter(node) {
-          //@ts-ignore
+          //@ts-expect-error ignore
           if (node.object && node.property && node.object.type === 'ThisExpression') {
-            //@ts-ignore
+            //@ts-expect-error ignore
             propsInFirstMethod.add(node.property.name);
           }
       }});
       traverse(item[1].value, { 
         enter(node) {
-          //@ts-ignore
+          //@ts-expect-error ignore
           if (node.object && node.property && node.object.type === 'ThisExpression') {
-            //@ts-ignore
+            //@ts-expect-error ignore
             propsInSecondMethod.add(node.property.name);
           }
       }});
@@ -79,7 +66,7 @@ export default class LackOfCohesionOfMethods implements IMetric {
       }
     }
 
-    let result = methodsPairs.length - (shareMutualPropsCounter * 2);
+    const result = methodsPairs.length - (shareMutualPropsCounter * 2);
 
     return returnMetricValueWithDesc(result <= 0 ? 0 : result, this._intervals);
   } 

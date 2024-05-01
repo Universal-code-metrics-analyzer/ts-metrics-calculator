@@ -5,22 +5,28 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm index.ts"
+    "dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm index.ts",
+    "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:eslint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint:tsc": "tsc -p ./tsconfig.json"
   },
   "author": "Andrei Kulevich",
   "license": "ISC",
   "devDependencies": {
     "@types/babel__traverse": "^7.20.5",
     "@types/jest": "^29.5.12",
+    "@typescript-eslint/eslint-plugin": "7.8.0",
+    "@typescript-eslint/parser": "7.0.0",
+    "eslint": "8.56.0",
     "jest": "^29.7.0",
-    "ts-jest": "^29.1.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "ts-jest": "^29.1.2"
   },
   "dependencies": {
     "@babel/parser": "^7.24.0",
     "@babel/traverse": "^7.24.0",
     "@babel/types": "^7.24.0",
-    "styx": "^0.2.1"
+    "styx": "^0.2.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }

@@ -1,28 +1,15 @@
-import { IBlob, IMetric, IModule, IntervalConfig } from "../types";
-import { findPathInFileTree, getAllBlobsFromTree, returnMetricValueWithDesc } from "../utils";
+import { AbstractMetric, IModule, IntervalConfig } from "../types";
+import { getAllBlobsFromTree, returnMetricValueWithDesc } from "../utils";
 import { parse } from '@babel/parser';
 import { traverse } from '@babel/types';
 
-export default class NumberOfChild implements IMetric {
-  private _name = 'Number Of Child';
-  private _info = 'Number of children for the given class';
-  private _scope = 'module';
-  private _intervals: IntervalConfig[];
-
+export default class NumberOfChild extends AbstractMetric<IModule> {
+  readonly name = 'Number Of Child';
+  readonly info = 'Number of children for the given class';
+  readonly scope = 'module';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: IModule, targetClassPath: string) {
@@ -43,9 +30,9 @@ export default class NumberOfChild implements IMetric {
               for (const specifier of node.specifiers) {
                 if (specifier.local.name === targetClassName) {
                   let absolutePath = '';
-                  let relativePath = node.source.value.split('/');
+                  const relativePath = node.source.value.split('/');
                   const _relativePath = [...relativePath];
-                  let currentDir = blob.path.split('/');
+                  const currentDir = blob.path.split('/');
                   const extension = '.' + currentDir.at(-1)?.split('.').at(-1);
 
                   for (let i = 0; i < relativePath.length; i++) {
@@ -72,7 +59,7 @@ export default class NumberOfChild implements IMetric {
                 traverse(ast, { 
                   enter(node) {
                     if (node.type === 'ClassDeclaration' && node.superClass) {
-                      //@ts-ignore
+                      //@ts-expect-error ignore
                       if (targetClassName === node.superClass.name) numberOfChildren++;
                     }
                 }});

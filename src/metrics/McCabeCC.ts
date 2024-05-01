@@ -1,32 +1,21 @@
-import { IMetric, IntervalConfig } from '../types';
-// @ts-ignore
+import { AbstractMetric, IntervalConfig } from '../types';
+// @ts-expect-error this package has no types
 import * as Styx from 'styx';
 import { returnMetricValueWithDesc } from '../utils';
+import { ParseResult } from '@babel/parser';
+import { File } from '@babel/types';
 
-export default class McCabeCC implements IMetric {
-  private _name = 'McCabe cylomatic complexity';
-  private _info =
-    'm - number of edges\nm - number of nodes\nvalue - cylomatic complexity (Z)';
-  private _scope = 'function';
-  private _intervals: IntervalConfig[];
-
+export default class McCabeCC extends AbstractMetric<ParseResult<File>> {
+  readonly name = 'McCabe cylomatic complexity';
+  readonly info = 'm - number of edges\nm - number of nodes\nvalue - cylomatic complexity (Z)';
+  readonly scope = 'function';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
+    super(config);
   }
 
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(programFlow: typeof Styx.parse) {
+  public run(program: ParseResult<File>) {
+    const programFlow = Styx.parse(program.program);
     const m = programFlow.flowGraph.edges.length, n = programFlow.flowGraph.nodes.length;
     const result = m - n + 2;
     return returnMetricValueWithDesc(result, this._intervals);

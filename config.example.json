@@ -1,5 +1,5 @@
 {
-  "rootDir": "/",
+  "rootDir": "",
   "extentions": ["js", "ts"],
   "metrics": [
     {
@@ -53,10 +53,6 @@
     },
     {
       "name": "EfferentCoupling",
-      "intervals": []
-    },
-    {
-      "name": "HansonMetric",
       "intervals": []
     },
     {

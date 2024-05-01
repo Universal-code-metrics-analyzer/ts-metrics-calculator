@@ -23,7 +23,7 @@ export default class AfferentCoupling implements IMetric {
   public run(program: IModule, targetModulePath: string) {
     let targetModule = null;
     let afferentCoupling = 0;
-    let classesInTargetModule: string[] = [];
+    const classesInTargetModule: string[] = [];
 
     for (const module of program.trees) {
       if (module.path === targetModulePath) {

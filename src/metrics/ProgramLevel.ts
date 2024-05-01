@@ -1,30 +1,17 @@
-import { IMetric, IntervalConfig } from "../types";
+import { AbstractMetric, IntervalConfig } from "../types";
 import { returnMetricValueWithDesc } from "../utils";
 import PotentialProgramVolume from './PotentialProgramVolume';
 import ProgramVolume from './ProgramVolume';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
 
-export default class ProgramLevel implements IMetric {
-  private _name = 'Program level';
-  private _info = 'Program level = PotentialProgramVolume / ProgramVolume';
-  private _scope = 'function';
-  private _intervals: IntervalConfig[];
-
+export default class ProgramLevel extends AbstractMetric<ParseResult<File>> {
+  readonly name = 'Program level';
+  readonly info = 'Program level = PotentialProgramVolume / ProgramVolume';
+  readonly scope = 'function';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: ParseResult<File>) {

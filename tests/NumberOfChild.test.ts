@@ -38,9 +38,9 @@ export default class NumberOfChild implements IMetric {
               for (const specifier of node.specifiers) {
                 if (specifier.local.name === targetClassName) {
                   let absolutePath = '';
-                  let relativePath = node.source.value.split('/');
+                  const relativePath = node.source.value.split('/');
                   const _relativePath = [...relativePath];
-                  let currentDir = blob.path.split('/');
+                  const currentDir = blob.path.split('/');
                   const extension = '.' + currentDir.at(-1)?.split('.').at(-1);
 
                   for (let i = 0; i < relativePath.length; i++) {

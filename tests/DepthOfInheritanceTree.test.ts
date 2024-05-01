@@ -21,7 +21,7 @@ export default class DepthOfInheritanceTree implements IMetric {
   }
 
   public run(program: IModule, targetClassPath: string) {
-    let depthOfInheritanceTree = getDepth(program, targetClassPath, 0);
+    const depthOfInheritanceTree = getDepth(program, targetClassPath, 0);
 
     function getDepth(program: IModule, targetClassPath: string, depth: number) {
       let _depth = depth; 
@@ -52,9 +52,9 @@ export default class DepthOfInheritanceTree implements IMetric {
                 if (specifier.local.name === parentClassname) {
                   // TODO: you do not take index.ts exports into account here
                   let absolutePath = '';
-                  let relativePath = node.source.value.split('/');
-                  let _relativePath = [...relativePath];
-                  let currentDir = targetClassPath.split('/');
+                  const relativePath = node.source.value.split('/');
+                  const _relativePath = [...relativePath];
+                  const currentDir = targetClassPath.split('/');
                   const extension = '.' + currentDir.at(-1)?.split('.').at(-1);
 
                   for (let i = 0; i < relativePath.length; i++) {

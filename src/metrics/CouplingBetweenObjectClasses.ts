@@ -1,29 +1,16 @@
-import { IMetric, IntervalConfig } from "../types";
+import { AbstractMetric, IntervalConfig } from "../types";
 import { traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
 import { returnMetricValueWithDesc } from "../utils";
 
-export default class CouplingBetweenObjectClasses implements IMetric {
-  private _name = 'Coupling Between Object Classes';
-  private _info = 'Coupling Between Object Classes';
-  private _scope = 'class';
-  private _intervals: IntervalConfig[];
-
+export default class CouplingBetweenObjectClasses extends AbstractMetric<ParseResult<File>> {
+  readonly name = 'Coupling Between Object Classes';
+  readonly info = 'Coupling Between Object Classes';
+  readonly scope = 'class';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: ParseResult<File>) {

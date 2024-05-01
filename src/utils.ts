@@ -48,5 +48,5 @@ export function returnMetricValueWithDesc(value: number, intervals: IntervalConf
       return { value, description: interval.description };
     }
   }
-  return { value, description: intervals[0].description };
+  return { value, description: '' };
 }

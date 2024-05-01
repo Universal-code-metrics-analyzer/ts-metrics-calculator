@@ -1,32 +1,19 @@
-import { IBlob, IMetric, IModule, IntervalConfig } from "../types";
+import { AbstractMetric, IBlob, IModule, IntervalConfig } from "../types";
 import { findPathInFileTree, returnMetricValueWithDesc } from "../utils";
 import { parse } from '@babel/parser';
 import { traverse } from '@babel/types';
 
-export default class DepthOfInheritanceTree implements IMetric {
-  private _name = 'Depth Of Inheritance Tree';
-  private _info = 'Depth Of Inheritance Tree';
-  private _scope = 'module';
-  private _intervals: IntervalConfig[];
-
+export default class DepthOfInheritanceTree extends AbstractMetric<IModule> {
+  readonly name = 'Depth Of Inheritance Tree';
+  readonly info = 'Depth Of Inheritance Tree';
+  readonly scope = 'module';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: IModule, targetClassPath: string) {
-    let depthOfInheritanceTree = getDepth(program, targetClassPath, 0);
+    const depthOfInheritanceTree = getDepth(program, targetClassPath, 0);
 
     function getDepth(program: IModule, targetClassPath: string, depth: number) {
       let _depth = depth; 
@@ -44,7 +31,7 @@ export default class DepthOfInheritanceTree implements IMetric {
       traverse(ast, { 
         enter(node) {
           if (node.type === 'ClassDeclaration' && node.superClass) {
-            //@ts-ignore
+            //@ts-expect-error ignore
             parentClassname = node.superClass.name;
           }
       }});
@@ -57,9 +44,9 @@ export default class DepthOfInheritanceTree implements IMetric {
                 if (specifier.local.name === parentClassname) {
                   // TODO: you do not take index.ts exports into account here
                   let absolutePath = '';
-                  let relativePath = node.source.value.split('/');
-                  let _relativePath = [...relativePath];
-                  let currentDir = targetClassPath.split('/');
+                  const relativePath = node.source.value.split('/');
+                  const _relativePath = [...relativePath];
+                  const currentDir = targetClassPath.split('/');
                   const extension = '.' + currentDir.at(-1)?.split('.').at(-1);
 
                   for (let i = 0; i < relativePath.length; i++) {

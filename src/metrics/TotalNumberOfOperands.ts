@@ -1,28 +1,15 @@
-import { IMetric, IntervalConfig } from "../types";
+import { AbstractMetric, IntervalConfig } from "../types";
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
 import { returnMetricValueWithDesc } from "../utils";
 
-export default class TotalNumberOfOperands implements IMetric {
-  private _name = 'Total number of operands';
-  private _info = 'Total number of operands in the program';
-  private _scope = 'function';
-  private _intervals: IntervalConfig[];
-
+export default class TotalNumberOfOperands extends AbstractMetric<ParseResult<File>> {
+  readonly name = 'Total number of operands';
+  readonly info = 'Total number of operands in the program';
+  readonly scope = 'function';
+  
   constructor(config: IntervalConfig[]) {
-    this._intervals = config
-  }
-
-  public get name() {
-    return this._name;
-  }
-
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
+    super(config);
   }
 
   public run(program: ParseResult<File>) {

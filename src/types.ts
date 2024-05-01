@@ -1,8 +1,17 @@
-interface IMetric {
-  name: string;
-  info: string;
-  scope: 'any' | 'module' | 'class' | 'function';
-  run: (program: any, ...args: any[]) => IMetricResult;
+import { File } from "@babel/types";
+import { ParseResult } from '@babel/parser';
+
+abstract class AbstractMetric<C extends ParseResult<File> | IModule> {
+  abstract readonly name: string;
+  abstract readonly info: string;
+  abstract readonly scope: 'module' | 'class' | 'function';
+  readonly _intervals: IntervalConfig[];
+
+  constructor(config: IntervalConfig[]) {
+    this._intervals = config;
+  }
+
+  public abstract run(program: C, targetClassPath?: string, targetModulePath?: string, targetFunctionPath?: string): IMetricResult;
 }
 
 interface IMetricResult {
@@ -26,7 +35,7 @@ interface IModule extends IFileTreeNode {
 }
 
 interface IConfig {
-  rootDir?: string;               // specify directory that will be parsed and analyzed
+  rootDir: string;               // specify directory that will be parsed and analyzed
   extentions: Array<'ts' | 'js'>; // parser will check only specific file extentions
   metrics: IMetricConfig[];       // metrics that should be calculated with specified ranges and limits
 }
@@ -59,4 +68,5 @@ interface ITreeMetricsResults extends IBlobMetricsResults {
 	blobs: IBlobMetricsResults[];
 }
 
-export type { IMetric, IMetricResult, IFileTreeNode, IBlob, IModule, IConfig, IMetricConfig, IntervalConfig, ITreeMetricsResults, IBlobMetricsResults, IFinalMetricResult };
+export type { IMetricResult, IFileTreeNode, IBlob, IModule, IConfig, IMetricConfig, IntervalConfig, ITreeMetricsResults, IBlobMetricsResults, IFinalMetricResult };
+export { AbstractMetric };
