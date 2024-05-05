@@ -1,5 +1,4 @@
 import { AbstractMetric, IntervalConfig } from '../types';
-// @ts-expect-error this package has no types
 import * as Styx from 'styx';
 import { returnMetricValueWithDesc } from '../utils';
 import { ParseResult } from '@babel/parser';

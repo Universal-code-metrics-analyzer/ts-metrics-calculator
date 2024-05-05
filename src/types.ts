@@ -15,7 +15,7 @@ abstract class AbstractMetric<C extends ParseResult<File> | IModule> {
 }
 
 interface IMetricResult {
-  value: any;
+  value: number;
   description?: string;
 }
 

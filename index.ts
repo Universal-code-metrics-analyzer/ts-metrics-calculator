@@ -3,9 +3,10 @@ import * as fs from 'fs';
 import { findPathInFileTree, getAllBlobsFromTree } from './src/utils';
 import { AbstractMetric, IBlob, IConfig, IFileTreeNode, IFinalMetricResult, IModule, ITreeMetricsResults } from './src/types';
 import * as metrics from './src/metrics';
-import { traverse } from '@babel/types';
+import { FunctionDeclaration, FunctionExpression, traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
+import generate from "@babel/generator";
 
 const helpIndex = process.argv.indexOf('--help');
 if (helpIndex !== -1) {
@@ -38,7 +39,7 @@ const config: IConfig = JSON.parse(fs.readFileSync(process.argv[confIndex + 1]).
 const metricsInstances: AbstractMetric<IModule | ParseResult<File>>[] = [];
 for (const metric of config.metrics) {
   try {
-    //@ts-ignore
+    //@ts-expect-error ignore
     metricsInstances.push(new metrics[metric.name](metric.intervals));
   } catch (error) {
     console.error("Error when reading configuration file. Make sure that the file has proper formatting and all specified metrics have the right name");
@@ -63,7 +64,7 @@ function inputTreeToOutputTree(inputTree: IModule): ITreeMetricsResults {
     path: inputTree.path,
     metricResults: [],
     trees: inputTree.trees.map(elem => inputTreeToOutputTree(elem)),
-	  blobs: inputTree.blobs.map(elem => {
+    blobs: inputTree.blobs.map(elem => {
       return {
         type: elem.type,
         name: elem.name,
@@ -84,7 +85,41 @@ const outputTree = inputTreeToOutputTree(rootDir);
 // calculate all metrics with scope == function
 // TODO: procedure to get all functions with paths
 const blobs = getAllBlobsFromTree(rootDir, config.extentions);
+
+console.log(blobs.length);
+
+
 const metricResultsScopeFunction: IFinalMetricResult[] = [];
+
+function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression) {
+  for (const metric of metricsInstances) {
+    if (metric.scope === 'function') {
+      // const output = generate(node.body);
+      // const functionAst = parse(output.code, { 
+      //   plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module', tokens: true
+      // });
+
+      const result = metric.run({
+        type: 'File',
+        program: {
+          type: 'Program',
+          body: node.body.body,
+          sourceType: 'script',
+          directives: []
+        },
+        errors: []
+      });
+
+      metricResultsScopeFunction.push({
+        metricName: metric.name,
+        resultScope: metric.scope,
+        subjectPath: node.id?.name as string,
+        value: result.value,
+        description: result.description
+      });
+    }
+  }
+}
 
 for (const blob of blobs) {
   const ast = parse(blob.content, { 
@@ -93,34 +128,20 @@ for (const blob of blobs) {
   
   traverse(ast, { 
     enter(node) {
-      if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
-        for (const metric of metricsInstances) {
-          if (metric.scope === 'function') {
-            const result = metric.run({
-              type: 'File',
-              program: {
-                type: 'Program',
-                //@ts-expect-error ignore
-                body: node,
-                sourceType: 'script',
-                directives: []
-              },
-              errors: []
-            });
-
-            metricResultsScopeFunction.push({
-              metricName: metric.name,
-              resultScope: metric.scope,
-              subjectPath: node.id?.name as string,
-              value: result.value,
-              description: result.description
-            });
-          }
-        }
+      if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {   
+        countFunctionMetrics(node);
       }
-  }});
-    
-  
+
+      // if (node.type === 'ClassBody') {   
+      //   for (const item of node.body) {
+      //     //@ts-expect-error ignore
+      //     if (item.type === 'MethodDefinition') {
+      //       //@ts-expect-error ignore
+      //       countFunctionMetrics(item.value.body);
+      //     }
+      //   }
+      // }
+  }});  
 }
 
 console.log(metricResultsScopeFunction);
