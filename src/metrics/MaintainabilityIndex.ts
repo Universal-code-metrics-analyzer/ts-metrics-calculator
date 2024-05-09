@@ -8,7 +8,7 @@ import { returnMetricValueWithDesc } from "../utils";
 export default class MaintainabilityIndex extends AbstractMetric<ParseResult<File>> {
   readonly name = 'Maintainability Index';
   readonly info = 'Maintainability Index proposed by Microsoft https://learn.microsoft.com/en-us/visualstudio/code-quality/code-metrics-maintainability-index-range-and-meaning?view=vs-2022';
-  readonly scope = 'module';
+  readonly scope = 'function';
   
   constructor(config: IntervalConfig[]) {
     super(config);
@@ -19,7 +19,7 @@ export default class MaintainabilityIndex extends AbstractMetric<ParseResult<Fil
       (171 - 5.2 * 
         Math.log(new ProgramVolume(this._intervals).run(program).value) - 0.23 * 
         new McCabeCC(this._intervals).run(program).value - 16.2 * 
-        Math.log(program.loc?.end.line as number)) * 100 / 171);
+        Math.log(Number(program.program.loc?.end.line) - Number(program.program.loc?.start.line))) * 100 / 171);
 
     return returnMetricValueWithDesc(value, this._intervals);
   } 

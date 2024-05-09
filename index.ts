@@ -1,7 +1,7 @@
 import { parse } from '@babel/parser';
 import * as fs from 'fs';
 import { findPathInFileTree, getAllBlobsFromTree } from './src/utils';
-import { AbstractMetric, IBlob, IConfig, IFileTreeNode, IFinalMetricResult, IModule, ITreeMetricsResults } from './src/types';
+import { AbstractMetric, IBlob, IBlobMetricsResults, IConfig, IFileTreeNode, IFinalMetricResult, IModule, ITreeMetricsResults } from './src/types';
 import * as metrics from './src/metrics';
 import { FunctionDeclaration, FunctionExpression, traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
@@ -91,16 +91,18 @@ function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | a
           type: 'Program',
           body: node.type === 'MethodDefinition' ? node.value.body.body : node.body.body,
           sourceType: 'script',
-          directives: []
+          directives: [],
+          loc: node.loc
         },
         tokens: fullAst.tokens?.slice(tokenStartIndex, tokenEndIndex),
+        loc: node.loc,
         errors: []
       });
 
       metricResultsScopeFunction.push({
         metricName: metric.name,
         resultScope: metric.scope,
-        subjectPath: node.type === 'MethodDefinition' ? node.key.name : node.id?.name as string,
+        subjectPath: node.type === 'MethodDefinition' ? blob.name + '/' + node.key.name : node.id?.name as string,
         value: result.value,
         description: result.description
       });
@@ -119,8 +121,11 @@ for (const blob of blobs) {
         countFunctionMetrics(node, ast, blob);
       }
 
-      if (node.type === 'ClassBody') {   
-        for (const item of node.body) {
+      if (node.type === 'ClassDeclaration') {  
+        
+        //type ArgumentTypes = Parameters<typeof exampleFunction>;
+        
+        for (const item of node.body.body) {
           //@ts-expect-error ignore
           if (item.type === 'MethodDefinition' && item.kind !== 'constructor') {
             countFunctionMetrics(item, ast, blob);
