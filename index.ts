@@ -6,7 +6,6 @@ import * as metrics from './src/metrics';
 import { FunctionDeclaration, FunctionExpression, traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
-import generate from "@babel/generator";
 
 const helpIndex = process.argv.indexOf('--help');
 if (helpIndex !== -1) {
@@ -34,8 +33,7 @@ if (confIndex === -1) {
 const project: IModule = JSON.parse(fs.readFileSync(process.argv[projIndex + 1]).toString());
 const config: IConfig = JSON.parse(fs.readFileSync(process.argv[confIndex + 1]).toString());
 
-// -------------------------------
-
+// get metrics instances
 const metricsInstances: AbstractMetric<IModule | ParseResult<File>>[] = [];
 for (const metric of config.metrics) {
   try {
@@ -46,8 +44,6 @@ for (const metric of config.metrics) {
     process.exit(1);
   }
 }
-
-// -------------------------------
 
 const rootDir = findPathInFileTree(config.rootDir, project) as IModule;
 
@@ -79,41 +75,32 @@ const outputTree = inputTreeToOutputTree(rootDir);
 
 // calculate all metrics with scope == module
 
-// calculate all metrics with scope == class
-// TODO: procedure to get all classes with paths
-
-// calculate all metrics with scope == function
-// TODO: procedure to get all functions with paths
+// calculate all metrics with scope == function and scope == class
 const blobs = getAllBlobsFromTree(rootDir, config.extentions);
-
-console.log(blobs.length);
-
 
 const metricResultsScopeFunction: IFinalMetricResult[] = [];
 
-function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression) {
+function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | any, fullAst: ParseResult<File>, blob: IBlob) {
   for (const metric of metricsInstances) {
-    if (metric.scope === 'function') {
-      // const output = generate(node.body);
-      // const functionAst = parse(output.code, { 
-      //   plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module', tokens: true
-      // });
-
+    if (metric.scope === 'function' && ((node.type !== 'MethodDefinition' && node.body) || (node.type === 'MethodDefinition' && node.value.body))) {
+      const tokenStartIndex = fullAst.tokens?.findIndex(elem => elem.loc.start.line === node.loc?.start.line);
+      const tokenEndIndex = fullAst.tokens?.findIndex(elem => elem.loc.end.line === node.loc?.end.line);
       const result = metric.run({
         type: 'File',
         program: {
           type: 'Program',
-          body: node.body.body,
+          body: node.type === 'MethodDefinition' ? node.value.body.body : node.body.body,
           sourceType: 'script',
           directives: []
         },
+        tokens: fullAst.tokens?.slice(tokenStartIndex, tokenEndIndex),
         errors: []
       });
 
       metricResultsScopeFunction.push({
         metricName: metric.name,
         resultScope: metric.scope,
-        subjectPath: node.id?.name as string,
+        subjectPath: node.type === 'MethodDefinition' ? node.key.name : node.id?.name as string,
         value: result.value,
         description: result.description
       });
@@ -123,36 +110,31 @@ function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression) {
 
 for (const blob of blobs) {
   const ast = parse(blob.content, { 
-    plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
   });
   
   traverse(ast, { 
     enter(node) {
       if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {   
-        countFunctionMetrics(node);
+        countFunctionMetrics(node, ast, blob);
       }
 
-      // if (node.type === 'ClassBody') {   
-      //   for (const item of node.body) {
-      //     //@ts-expect-error ignore
-      //     if (item.type === 'MethodDefinition') {
-      //       //@ts-expect-error ignore
-      //       countFunctionMetrics(item.value.body);
-      //     }
-      //   }
-      // }
+      if (node.type === 'ClassBody') {   
+        for (const item of node.body) {
+          //@ts-expect-error ignore
+          if (item.type === 'MethodDefinition' && item.kind !== 'constructor') {
+            countFunctionMetrics(item, ast, blob);
+          }
+        }
+      }
   }});  
 }
 
 console.log(metricResultsScopeFunction);
 
-  
-// calculate all 
 
-// create resulting file and write results
-
-
-//console.log(new NumberOfChild().run(findPathInFileTree('tests', project) as IModule, 'tests/module1/A.ts'));
+// write results
+fs.writeFileSync('result.json', JSON.stringify(outputTree, null, '  '));
 
 
 

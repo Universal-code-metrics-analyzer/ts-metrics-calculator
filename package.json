@@ -22,10 +22,9 @@
     "ts-jest": "^29.1.2"
   },
   "dependencies": {
-    "@babel/generator": "^7.24.5",
-    "@babel/parser": "^7.24.0",
-    "@babel/traverse": "^7.24.0",
-    "@babel/types": "^7.24.0",
+    "@babel/parser": "^7.24.5",
+    "@babel/traverse": "^7.24.5",
+    "@babel/types": "^7.24.5",
     "styx": "https://github.com/andrey-kulevich/control-graph-from-estree.git",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
