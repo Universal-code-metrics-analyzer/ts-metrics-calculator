@@ -1,7 +1,7 @@
 import { parse } from '@babel/parser';
 import * as fs from 'fs';
-import { findPathInFileTree, getAllBlobsFromTree, getAllModulesFromTree, getParamNames } from './src/utils';
-import { AbstractMetric, IBlob, IBlobMetricsResults, IConfig, IFileTreeNode, IFinalMetricResult, IModule, ITreeMetricsResults } from './src/types';
+import { findPathInFileTree, getAllBlobsFromTree, getAllModulesFromTree, getParamNames, inputTreeToOutputTree } from './src/utils';
+import { AbstractMetric, IBlob, IBlobMetricsResults, IConfig, IFinalMetricResult, IModule, ITreeMetricsResults } from './src/types';
 import * as metrics from './src/metrics';
 import { ClassDeclaration, FunctionDeclaration, FunctionExpression, traverse } from '@babel/types';
 import { ParseResult } from '@babel/parser';
@@ -49,37 +49,13 @@ const rootDir = findPathInFileTree(config.rootDir, project) as IModule;
 
 console.log('Started to calculate metrics...');
 
-// create the object for results
-const result: ITreeMetricsResults = {} as ITreeMetricsResults;
-
 // translate input tree to output tree
-function inputTreeToOutputTree(inputTree: IModule): ITreeMetricsResults {
-  return {
-    type: inputTree.type,
-    name: inputTree.path,
-    path: inputTree.path,
-    metricResults: [],
-    trees: inputTree.trees.map(elem => inputTreeToOutputTree(elem)),
-    blobs: inputTree.blobs.map(elem => {
-      return {
-        type: elem.type,
-        name: elem.name,
-        path: elem.path,
-        metricResults: []
-      }
-    })
-  };
-}
-
 const outputTree = inputTreeToOutputTree(rootDir);
 
-const blobs = getAllBlobsFromTree(rootDir, config.extentions);
-
-const metricResultsScopeFunction: IFinalMetricResult[] = [];
-const metricResultsScopeClass: IFinalMetricResult[] = [];
+const metricResultsFile: IBlobMetricsResults[] = [];
 const metricResultsScopeModule: ITreeMetricsResults[] = [];
 
-function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | any, fullAst: ParseResult<File>, blob: IBlob) {
+function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | any, fullAst: ParseResult<File>, blob: IBlob, output: IFinalMetricResult[]) {
   for (const metric of metricsInstances) {
     if (metric.scope === 'function' && ((node.type !== 'MethodDefinition' && node.body) || (node.type === 'MethodDefinition' && node.value.body))) {
       const tokenStartIndex = fullAst.tokens?.findIndex(elem => elem.loc.start.line === node.loc?.start.line);
@@ -98,7 +74,7 @@ function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | a
         errors: []
       });
 
-      metricResultsScopeFunction.push({
+      output.push({
         metricName: metric.name,
         resultScope: metric.scope,
         subjectPath: blob.name + '/' + (node.type === 'MethodDefinition' ? node.key.name : node.id?.name as string),
@@ -109,18 +85,18 @@ function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | a
   }
 }
 
-function countClassMetrics(node: ClassDeclaration, fullAst: ParseResult<File>, blob: IBlob) {
+function countClassMetrics(node: ClassDeclaration, fullAst: ParseResult<File>, blob: IBlob, root: IModule, output: IFinalMetricResult[]) {
   for (const metric of metricsInstances) {
     if (metric.scope === 'class') {
       let _result;
       const params = getParamNames(metric.run);
       if (params[1] && params[1] === 'targetClassPath') {
-        _result = metric.run(rootDir, blob.path);
+        _result = metric.run(root, blob.path);
       } else {
         _result = metric.run(fullAst);
       }
 
-      metricResultsScopeClass.push({
+      output.push({
         metricName: metric.name,
         resultScope: metric.scope,
         subjectPath: blob.name + '/' + node.id?.name as string,
@@ -131,37 +107,50 @@ function countClassMetrics(node: ClassDeclaration, fullAst: ParseResult<File>, b
   }
 }
 
-function countModuleMetrics(module: IModule) {
-  const moduleMetrics: IFinalMetricResult[] = [];
-  for (const metric of metricsInstances) {
-    if (metric.scope === 'module') {
-      let _result;
-      const params = getParamNames(metric.run);
-      if (params[1] && params[1] === 'targetModulePath') {
-        _result = metric.run(rootDir, module.path);
-        
-        moduleMetrics.push({
-          metricName: metric.name,
-          resultScope: metric.scope,
-          subjectPath: module.name,
-          value: _result.value,
-          description: _result.description
-        });
+function countModuleMetrics(root: IModule) {
+  const modules = getAllModulesFromTree(rootDir);
+
+  for (const module of modules) {
+    const moduleMetrics: IFinalMetricResult[] = [];
+    for (const metric of metricsInstances) {
+      if (metric.scope === 'module') {
+        let _result;
+        const params = getParamNames(metric.run);
+        if (params[1] && params[1] === 'targetModulePath') {
+          _result = metric.run(root, module.path);
+          
+          moduleMetrics.push({
+            metricName: metric.name,
+            resultScope: metric.scope,
+            subjectPath: module.name,
+            value: _result.value,
+            description: _result.description
+          });
+        }
       }
     }
+  
+    metricResultsScopeModule.push({
+      name: module.name,
+      path: module.path,
+      type: module.type,
+      metricResults: moduleMetrics,
+      trees: [],
+      blobs: []
+    });
   }
-
-  metricResultsScopeModule.push({
-    name: module.name,
-    path: module.path,
-    type: module.type,
-    metricResults: moduleMetrics,
-    trees: [],
-    blobs: []
-  });
 }
 
+const blobs = getAllBlobsFromTree(rootDir, config.extentions);
+
 for (const blob of blobs) {
+  const resultsFile: IBlobMetricsResults = {
+    name: blob.name,
+    path: blob.path,
+    type: blob.type,
+    metricResults: []
+  };
+
   const ast = parse(blob.content, { 
     plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
   });
@@ -169,38 +158,51 @@ for (const blob of blobs) {
   traverse(ast, { 
     enter(node) {
       if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {   
-        countFunctionMetrics(node, ast, blob);
+        countFunctionMetrics(node, ast, blob, resultsFile.metricResults);
       }
 
       if (node.type === 'ClassDeclaration') {
         // calculate metrics for class
-        countClassMetrics(node, ast, blob);
+        countClassMetrics(node, ast, blob, rootDir, resultsFile.metricResults);
         
         // calculate metrics for class methods
         for (const item of node.body.body) {
           //@ts-expect-error ignore
           if (item.type === 'MethodDefinition' && item.kind !== 'constructor') {
-            countFunctionMetrics(item, ast, blob);
+            countFunctionMetrics(item, ast, blob, resultsFile.metricResults);
           }
         }
       }
   }});  
+
+  metricResultsFile.push(resultsFile);
 }
 
 // calculate metrics for modules
-const modules = getAllModulesFromTree(rootDir);
+countModuleMetrics(rootDir);
 
-for (const module of modules) {
-  countModuleMetrics(module);
+function combineResultsToOutputTree(outputTree: ITreeMetricsResults, _metricResultsFile: IBlobMetricsResults[], _metricResultsScopeModule: ITreeMetricsResults[]) {
+  const resultsForThisTree = _metricResultsScopeModule.find(el => el.path === outputTree.path);
+  if (resultsForThisTree) {
+    outputTree.metricResults = resultsForThisTree.metricResults;
+  }
+  
+  for (let i = 0; i < outputTree.blobs.length; i++) {
+    const resultsForThisBlob = _metricResultsFile.find(el => el.path === outputTree.blobs[i].path);
+    if (resultsForThisBlob) {
+      outputTree.blobs[i].metricResults = resultsForThisBlob.metricResults;
+    }
+  }
+
+  for (const tree of outputTree.trees) {
+    combineResultsToOutputTree(tree, _metricResultsFile, _metricResultsScopeModule);
+  }
 }
 
-console.log(metricResultsScopeModule);
-//console.log(metricResultsScopeFunction);
-//console.log(metricResultsScopeClass);
-
+combineResultsToOutputTree(outputTree, metricResultsFile, metricResultsScopeModule);
 
 // write results
 fs.writeFileSync('result.json', JSON.stringify(outputTree, null, '  '));
 
-
+console.log('Success! Results are saved to result.json');
 

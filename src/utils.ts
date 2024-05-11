@@ -1,4 +1,4 @@
-import { IBlob, IMetricResult, IModule, IntervalConfig } from "./types";
+import { IBlob, IMetricResult, IModule, ITreeMetricsResults, IntervalConfig } from "./types";
 
 export function findPathInFileTree(path: string, tree: IModule): IModule | IBlob | null {
   let result = null;
@@ -68,4 +68,22 @@ export function getParamNames(func: (...args: any) => any) {
   let params: any = fnStr.slice(fnStr.indexOf('(')+1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
   if (params === null) params = [];
   return params;
+}
+
+export function inputTreeToOutputTree(inputTree: IModule): ITreeMetricsResults {
+  return {
+    type: inputTree.type,
+    name: inputTree.path,
+    path: inputTree.path,
+    metricResults: [],
+    trees: inputTree.trees.map(elem => inputTreeToOutputTree(elem)),
+    blobs: inputTree.blobs.map(elem => {
+      return {
+        type: elem.type,
+        name: elem.name,
+        path: elem.path,
+        metricResults: []
+      }
+    })
+  };
 }
