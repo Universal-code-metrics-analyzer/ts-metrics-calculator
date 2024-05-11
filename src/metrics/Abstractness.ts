@@ -13,7 +13,7 @@ export default class Abstractness extends AbstractMetric<IModule> {
   }
 
   public run(program: IModule, targetModulePath: string) {
-    // will take as assumption that interfaces also contribute to abstractness
+    // interfaces also contribute to abstractness
     let totalNumberOfClassesAndInterfaces = 0;
     let numberOfAbstractClassesAndInterfaces = 0;
 

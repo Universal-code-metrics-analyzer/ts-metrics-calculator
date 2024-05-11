@@ -22,7 +22,7 @@ export default class WeightedMethodsPerClass extends AbstractMetric<ParseResult<
         if (node.type === 'ClassBody') {
           for (const item of node.body) {
             //@ts-expect-error ignore
-            if (item.type === 'MethodDefinition') {
+            if (item.type === 'MethodDefinition' && item.value.body) {
               weightedMethodsPerClass += new McCabeCC(intervals).run({
                 type: 'File',
                 program: {

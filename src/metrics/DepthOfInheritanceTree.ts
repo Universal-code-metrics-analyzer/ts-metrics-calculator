@@ -6,7 +6,7 @@ import { traverse } from '@babel/types';
 export default class DepthOfInheritanceTree extends AbstractMetric<IModule> {
   readonly name = 'Depth Of Inheritance Tree';
   readonly info = 'Depth Of Inheritance Tree';
-  readonly scope = 'module';
+  readonly scope = 'class';
   
   constructor(config: IntervalConfig[]) {
     super(config);
@@ -42,7 +42,6 @@ export default class DepthOfInheritanceTree extends AbstractMetric<IModule> {
             if (node.type === 'ImportDeclaration') {
               for (const specifier of node.specifiers) {
                 if (specifier.local.name === parentClassname) {
-                  // TODO: you do not take index.ts exports into account here
                   let absolutePath = '';
                   const relativePath = node.source.value.split('/');
                   const _relativePath = [...relativePath];
