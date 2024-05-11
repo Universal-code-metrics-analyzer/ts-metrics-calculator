@@ -115,7 +115,7 @@ function countClassMetrics(node: ClassDeclaration, fullAst: ParseResult<File>, b
       let _result;
       const params = getParamNames(metric.run);
       if (params[1] && params[1] === 'targetClassPath') {
-        _result = metric.run(project, blob.path);
+        _result = metric.run(rootDir, blob.path);
       } else {
         _result = metric.run(fullAst);
       }
@@ -138,7 +138,7 @@ function countModuleMetrics(module: IModule) {
       let _result;
       const params = getParamNames(metric.run);
       if (params[1] && params[1] === 'targetModulePath') {
-        _result = metric.run(project, module.path);
+        _result = metric.run(rootDir, module.path);
         
         moduleMetrics.push({
           metricName: metric.name,
@@ -188,7 +188,7 @@ for (const blob of blobs) {
 }
 
 // calculate metrics for modules
-const modules = getAllModulesFromTree(project);
+const modules = getAllModulesFromTree(rootDir);
 
 for (const module of modules) {
   countModuleMetrics(module);

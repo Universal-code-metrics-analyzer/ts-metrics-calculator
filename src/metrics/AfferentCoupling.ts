@@ -1,5 +1,5 @@
 import { AbstractMetric, IBlob, IModule, IntervalConfig } from "../types";
-import { getAllBlobsFromTree, returnMetricValueWithDesc } from "../utils";
+import { getAllBlobsFromTree, getAllModulesFromTree, returnMetricValueWithDesc } from "../utils";
 import { parse } from '@babel/parser';
 import { Identifier, traverse } from '@babel/types';
 
@@ -13,34 +13,33 @@ export default class AfferentCoupling extends AbstractMetric<IModule> {
   }
 
   public run(program: IModule, targetModulePath: string) {
-    let targetModule = null;
     let afferentCoupling = 0;
     const classesInTargetModule: string[] = [];
 
-    for (const module of program.trees) {
-      if (module.path === targetModulePath) {
-        targetModule = module;
-        const _classesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, ['ts', 'js']);
+    const modules = getAllModulesFromTree(program);
+    const targetModule = modules.find(el => el.path === targetModulePath);
 
-        for (const blob of _classesInTargetModule) {
-          const ast = parse(blob.content, { 
-            plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
-          });
+    if (targetModule) {
+      const _classesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, ['ts', 'js']);
 
-          traverse(ast, { 
-            enter(node) {
-              if (node.type === 'ExportNamedDeclaration' || 
-                node.type === 'ExportDefaultDeclaration') {
-                if (node.declaration?.type === 'ClassDeclaration') {
-                  classesInTargetModule.push(node.declaration.id?.name as string);
-                }
+      for (const blob of _classesInTargetModule) {
+        const ast = parse(blob.content, { 
+          plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+        });
+
+        traverse(ast, { 
+          enter(node) {
+            if (node.type === 'ExportNamedDeclaration' || 
+              node.type === 'ExportDefaultDeclaration') {
+              if (node.declaration?.type === 'ClassDeclaration') {
+                classesInTargetModule.push(node.declaration.id?.name as string);
               }
-          }});
-        }
+            }
+        }});
       }
     }
 
-    for (const module of program.trees) {
+    for (const module of modules) {
       if (module.path !== targetModulePath) {
         const classesInModule = getAllBlobsFromTree(module, ['ts', 'js']);
 

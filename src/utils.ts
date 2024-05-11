@@ -42,9 +42,8 @@ export function getAllBlobsFromTree(tree: IModule, extentions: string[]): IBlob[
 }
 
 export function getAllModulesFromTree(tree: IModule): IModule[] {
-  let result: IModule[] = [];
+  let result: IModule[] = [tree];
   if (tree && tree.trees) {
-    result = result.concat(tree.trees);
     for (const node of tree.trees) {
       result = result.concat(getAllModulesFromTree(node));
     }

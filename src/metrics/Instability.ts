@@ -15,6 +15,6 @@ export default class Instability extends AbstractMetric<IModule> {
   public run(program: IModule, targetModulePath: string) {
     const afferentCoupling = new AfferentCoupling(this._intervals).run(program, targetModulePath).value;
     const efferentCoupling = new EfferentCoupling(this._intervals).run(program, targetModulePath).value;
-    return returnMetricValueWithDesc(efferentCoupling / (efferentCoupling + afferentCoupling), this._intervals);
+    return returnMetricValueWithDesc(efferentCoupling > 0 ? (efferentCoupling / (efferentCoupling + afferentCoupling)) : 0, this._intervals);
   } 
 }
