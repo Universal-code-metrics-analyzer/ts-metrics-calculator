@@ -7,6 +7,8 @@ import { ClassDeclaration, FunctionDeclaration, FunctionExpression, traverse } f
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
 
+// ----------------------------------------------------------------------------------
+
 const helpIndex = process.argv.indexOf('--help');
 if (helpIndex !== -1) {
   console.log('Hello!\nThis tool is made to calculate code metrics for Javascript and Typescript projects.\n');
@@ -16,13 +18,6 @@ if (helpIndex !== -1) {
   process.exit();
 }
 
-const projIndex = process.argv.indexOf('--proj');
-
-if (projIndex === -1) {
-  console.error("Error: please, specify the path project JSON tree to analyze");
-  process.exit(1);
-}
-
 const confIndex = process.argv.indexOf('--conf');
 
 if (confIndex === -1) {
@@ -30,8 +25,39 @@ if (confIndex === -1) {
   process.exit(1);
 }
 
-const project: IModule = JSON.parse(fs.readFileSync(process.argv[projIndex + 1]).toString());
 const config: IConfig = JSON.parse(fs.readFileSync(process.argv[confIndex + 1]).toString());
+
+// project data can be either piped to stdin or specified as a path to json file 
+
+const projIndex = process.argv.indexOf('--proj');
+
+if (projIndex === -1 && process.stdin.isTTY) {
+  console.error("Error: please, specify the path to project JSON tree to analyze");
+  process.exit(1);
+}
+
+let project: IModule = {} as IModule;
+
+if (!process.stdin.isTTY) {
+  let _data = ''; 
+  
+  await new Promise((resolve) => {
+    process.stdin.on("data", data => {
+      _data += data.toString();
+    });
+
+    process.stdin.on("end", () => {
+      resolve('');
+    })
+  });
+
+  project = JSON.parse(_data);
+
+} else if (projIndex !== -1) {
+  project = JSON.parse(fs.readFileSync(process.argv[projIndex + 1]).toString());
+}
+
+// ----------------------------------------------------------------------------------
 
 // get metrics instances
 const metricsInstances: AbstractMetric<IModule | ParseResult<File>>[] = [];
@@ -47,7 +73,9 @@ for (const metric of config.metrics) {
 
 const rootDir = findPathInFileTree(config.rootDir, project) as IModule;
 
-console.log('Started to calculate metrics...');
+if (process.stdin.isTTY) console.log('Started to calculate metrics...');
+
+// ----------------------------------------------------------------------------------
 
 // translate input tree to output tree
 const outputTree = inputTreeToOutputTree(rootDir);
@@ -201,8 +229,13 @@ function combineResultsToOutputTree(outputTree: ITreeMetricsResults, _metricResu
 
 combineResultsToOutputTree(outputTree, metricResultsFile, metricResultsScopeModule);
 
-// write results
-fs.writeFileSync('result.json', JSON.stringify(outputTree, null, '  '));
+// ----------------------------------------------------------------------------------
 
-console.log('Success! Results are saved to result.json');
+// write results
+if (process.stdin.isTTY) {
+  fs.writeFileSync('result.json', JSON.stringify(outputTree, null, '  '));
+  console.log('Success! Results are saved to result.json');
+} else {
+  process.stdout.write(JSON.stringify(outputTree, null, '  '));
+}
 
