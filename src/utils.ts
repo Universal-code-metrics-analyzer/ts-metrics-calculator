@@ -55,10 +55,10 @@ export function returnMetricValueWithDesc(value: number, intervals: IntervalConf
   for (const interval of intervals) {
     if (value >= (interval.valueMin === null ? Number.NEGATIVE_INFINITY : interval.valueMin) 
       && value <= (interval.valueMax === null ? Number.POSITIVE_INFINITY : interval.valueMax)) {
-      return { value, description: interval.description };
+      return { value, description: interval.description, level: interval.level };
     }
   }
-  return { value, description: '' };
+  return { value, description: '', level: 'green' };
 }
 
 const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;

@@ -17,6 +17,7 @@ abstract class AbstractMetric<C extends ParseResult<File> | IModule> {
 interface IMetricResult {
   value: number;
   description?: string;
+  level: 'green' | 'yellow' | 'red';
 }
 
 interface IFileTreeNode {
@@ -48,15 +49,17 @@ interface IMetricConfig {
 interface IntervalConfig {
   valueMin: number | null;
   valueMax: number | null; 
+  level: 'green' | 'yellow' | 'red';
   description: string;
 }
 
 interface IFinalMetricResult {
-	metricName: string
-	resultScope: 'module' | 'class' | 'function'
-	subjectPath: string
-	value: number
-	description?: string
+	metricName: string;
+	resultScope: 'module' | 'class' | 'function';
+	subjectPath: string;
+	value: number;
+	description?: string;
+  level: 'green' | 'yellow' | 'red';
 }
 
 interface IBlobMetricsResults extends IFileTreeNode {

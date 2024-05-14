@@ -109,7 +109,8 @@ function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | a
         resultScope: metric.scope,
         subjectPath: blob.name + '/' + (node.type === 'MethodDefinition' ? node.key.name : node.id?.name as string),
         value: _result.value,
-        description: _result.description
+        description: _result.description,
+        level: _result.level
       });
     }
   }
@@ -131,7 +132,8 @@ function countClassMetrics(node: ClassDeclaration, fullAst: ParseResult<File>, b
         resultScope: metric.scope,
         subjectPath: blob.name + '/' + node.id?.name as string,
         value: _result.value,
-        description: _result.description
+        description: _result.description,
+        level: _result.level
       });
     }
   }
@@ -154,7 +156,8 @@ function countModuleMetrics(root: IModule) {
             resultScope: metric.scope,
             subjectPath: module.name,
             value: _result.value,
-            description: _result.description
+            description: _result.description,
+            level: _result.level
           });
         }
       }
