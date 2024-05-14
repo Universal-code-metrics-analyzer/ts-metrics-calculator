@@ -85,7 +85,9 @@ const metricResultsScopeModule: ITreeMetricsResults[] = [];
 
 function countFunctionMetrics(node: FunctionDeclaration | FunctionExpression | any, fullAst: ParseResult<File>, blob: IBlob, output: IFinalMetricResult[]) {
   for (const metric of metricsInstances) {
-    if (metric.scope === 'function' && ((node.type !== 'MethodDefinition' && node.body) || (node.type === 'MethodDefinition' && node.value.body))) {
+    if (metric.scope === 'function' && 
+      ((node.type !== 'MethodDefinition' && node.body) || 
+      (node.type === 'MethodDefinition' && node.value.body && node.value.body.body.length > 0))) {
       const tokenStartIndex = fullAst.tokens?.findIndex(elem => elem.loc.start.line === node.loc?.start.line);
       const tokenEndIndex = fullAst.tokens?.findIndex(elem => elem.loc.end.line === node.loc?.end.line);
       const _result = metric.run({
