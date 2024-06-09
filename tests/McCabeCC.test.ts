@@ -1,33 +1,114 @@
-import { IMetric } from '../types';
-// @ts-ignore
-import * as Styx from 'styx';
+import { parse } from "@babel/parser";
+import { McCabeCC } from "../src/metrics";
 
-export default class McCabeCC implements IMetric {
-  private _name = 'McCabe cylomatic complexity';
-  private _info =
-    'm - number of edges\nm - number of nodes\nvalue - cylomatic complexity (Z)';
-  private _scope = 'function';
 
-  public get name() {
-    return this._name;
-  }
+test('Simple procedure without cycles and conditions', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
+  
+  expect(new McCabeCC([]).run(ast).value).toBe(1);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Simple procedure with cycle', () => {
+  const classMethod = `
+    for (let i = 0; i < 5; i++) {
+      let foo = 5;
+      foo = foo + this.foo - this.getFoo() + 3;
+    }
+  `;
 
-  public run(programFlow: typeof Styx.parse) {
-    const m = programFlow.flowGraph.edges.length,
-      n = programFlow.flowGraph.nodes.length;
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
 
-    return {
-      m,
-      n,
-      value: m - n + 2,
-    };
-  }
-}
+  expect(new McCabeCC([]).run(ast).value).toBe(2);
+});
+
+test('Simple procedure with condition', () => {
+  const classMethod = `
+    let i = 4;
+    if (i === 4 || i === 2) {
+      let foo = 5;
+      foo = foo + this.foo + 3;
+    }
+  `;
+
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
+
+  expect(new McCabeCC([]).run(ast).value).toBe(2);
+});
+
+test('Medium procedure', () => {
+  const classMethod = `
+    let i = 4;
+    if (i === 4 || i === 2) {
+      let foo = 5;
+      foo = foo + this.foo + 3;
+      if (i === 2) {
+        foo = 4;
+      } else if (i === 0) {
+        foo = 0;
+      } else {
+        foo = 1;
+        if (foo === 0) {
+          i = 9;
+        }
+      }
+    }
+  `;
+
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
+
+  expect(new McCabeCC([]).run(ast).value).toBe(5);
+});
+
+test('Difficult procedure', () => {
+  const classMethod = `
+    let i = 4;
+    if (i === 4 || i === 2) {
+      let foo = 5;
+      foo = foo + this.foo + 3;
+      if (i === 2) {
+        foo = 4;
+      } else if (i === 0) {
+        if (foo === 0) {
+          i = 9;
+          if (foo === 0) {
+            i = 9;
+          }
+        }
+        foo = 0;
+      } else {
+        foo = 1;
+        if (foo === 0) {
+          i = 9;
+          if (foo === 0) {
+            i = 9;
+            if (foo === 0) {
+              i = 9;
+              if (foo === 0) {
+                i = 9;
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
+
+  expect(new McCabeCC([]).run(ast).value).toBe(10);
+});

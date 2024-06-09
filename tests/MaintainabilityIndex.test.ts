@@ -1,33 +1,114 @@
-import { IMetric } from "../types";
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
-import ProgramVolume from "./ProgramVolume";
-import McCabeCC from "./McCabeCC";
-// @ts-ignore
-import * as Styx from 'styx';
+import { parse } from "@babel/parser";
+import { MaintainabilityIndex } from "../src/metrics";
 
-export default class MaintainabilityIndex implements IMetric {
-  private _name = 'Maintainability Index';
-  private _info = 'Maintainability Index proposed by Microsoft https://learn.microsoft.com/en-us/visualstudio/code-quality/code-metrics-maintainability-index-range-and-meaning?view=vs-2022';
-  private _scope = 'module';
 
-  public get name() {
-    return this._name;
-  }
+test('Simple procedure without cycles and conditions', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+  
+  expect(new MaintainabilityIndex([]).run(ast).value).toBeCloseTo(78.56, 2);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Simple procedure with cycle', () => {
+  const classMethod = `
+    for (let i = 0; i < 5; i++) {
+      let foo = 5;
+      foo = foo + this.foo - this.getFoo() + 3;
+    }
+  `;
 
-  public run(program: ParseResult<File>, programFlow: typeof Styx.parse) {
-    return { value: Math.max(0, 
-      (171 - 5.2 * 
-        Math.log(new ProgramVolume().run(program).value) - 0.23 * 
-        new McCabeCC().run(programFlow).value - 16.2 * 
-        Math.log(program.loc?.end.line as number)) * 100 / 171) };
-  } 
-}
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new MaintainabilityIndex([]).run(ast).value).toBeCloseTo(68.97, 2);
+});
+
+test('Simple procedure with condition', () => {
+  const classMethod = `
+    let i = 4;
+    if (i === 4 || i === 2) {
+      let foo = 5;
+      foo = foo + this.foo + 3;
+    }
+  `;
+
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new MaintainabilityIndex([]).run(ast).value).toBeCloseTo(67.67, 2);
+});
+
+test('Medium procedure', () => {
+  const classMethod = `
+    let i = 4;
+    if (i === 4 || i === 2) {
+      let foo = 5;
+      foo = foo + this.foo + 3;
+      if (i === 2) {
+        foo = 4;
+      } else if (i === 0) {
+        foo = 0;
+      } else {
+        foo = 1;
+        if (foo === 0) {
+          i = 9;
+        }
+      }
+    }
+  `;
+
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new MaintainabilityIndex([]).run(ast).value).toBeCloseTo(55.26, 2);
+});
+
+test('Difficult procedure', () => {
+  const classMethod = `
+    let i = 4;
+    if (i === 4 || i === 2) {
+      let foo = 5;
+      foo = foo + this.foo + 3;
+      if (i === 2) {
+        foo = 4;
+      } else if (i === 0) {
+        if (foo === 0) {
+          i = 9;
+          if (foo === 0) {
+            i = 9;
+          }
+        }
+        foo = 0;
+      } else {
+        foo = 1;
+        if (foo === 0) {
+          i = 9;
+          if (foo === 0) {
+            i = 9;
+            if (foo === 0) {
+              i = 9;
+              if (foo === 0) {
+                i = 9;
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+  });
+
+  expect(new MaintainabilityIndex([]).run(ast).value).toBeCloseTo(46.57, 2);
+});

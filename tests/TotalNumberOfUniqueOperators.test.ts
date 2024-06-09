@@ -1,37 +1,29 @@
-import { IMetric } from "../types";
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import { parse } from "@babel/parser";
+import { TotalNumberOfUniqueOperators } from "../src/metrics";
 
-export default class TotalNumberOfUniqueOperators implements IMetric {
-  private _name = 'Total number of unique operators';
-  private _info = 'Total number of unique operators';
-  private _scope = 'any';
 
-  public get name() {
-    return this._name;
-  }
+test('Operators of a separate function', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+  });
+  
+  expect(new TotalNumberOfUniqueOperators([]).run(ast).value).toBe(5);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Operators of a class method', () => {
+  const classMethod = `
+    let foo = 5;
+    foo = foo + this.foo - this.getFoo() + 3;
+  `;
 
-  public run(program: ParseResult<File>) {
-    const uniqueOperators: string[][] = [];
-    if (program.tokens) {
-      for (const token of program.tokens) {
-        if (((token.type.keyword 
-          || token.type.binop)
-          || (token.type.label !== 'name' && token.type.label !== 'string')
-          || token.value === 'let') 
-          && !uniqueOperators.find((elem) => elem[0] === token.value && elem[1] === token.type.label)) {
-          uniqueOperators.push([token.value, token.type.label]);
-        } 
-      }
-    }
-    return { value: uniqueOperators.length };
-  } 
-}
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new TotalNumberOfUniqueOperators([]).run(ast).value).toBe(10);
+});

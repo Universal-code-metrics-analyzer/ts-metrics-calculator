@@ -1,79 +1,19 @@
-import { IBlob, IMetric, IModule } from "../types";
-import { getAllBlobsFromTree } from "../utils";
-import { parse } from '@babel/parser';
-import { Identifier, traverse } from '@babel/types';
+import { AfferentCoupling } from "../src/metrics";
+import * as fs from 'fs';
+import { IModule } from "../src/types";
+import { findPathInFileTree } from "../src/utils";
 
-export default class AfferentCoupling implements IMetric {
-  private _name = 'Afferent coupling';
-  private _info = 'Afferent coupling';
-  private _scope = 'module';
+const project = JSON.parse(fs.readFileSync(__dirname + '/repo.json').toString());
+const testDir = findPathInFileTree('tests', project) as IModule;
 
-  public get name() {
-    return this._name;
-  }
+test('No coupling', () => {
+  expect(new AfferentCoupling([]).run(project, 'tests').value).toBe(0);
+});
 
-  public get info() {
-    return this._info;
-  }
+test('Weak coupling', () => {
+  expect(new AfferentCoupling([]).run(testDir, 'tests/module3').value).toBe(2);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(program: IModule, targetModulePath: string) {
-    let targetModule = null;
-    let afferentCoupling = 0;
-    const classesInTargetModule: string[] = [];
-
-    for (const module of program.trees) {
-      if (module.path === targetModulePath) {
-        targetModule = module;
-        const _classesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, ['ts', 'js']);
-
-        for (const blob of _classesInTargetModule) {
-          const ast = parse(blob.content, { 
-            plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
-          });
-
-          traverse(ast, { 
-            enter(node) {
-              if (node.type === 'ExportNamedDeclaration' || 
-                node.type === 'ExportDefaultDeclaration') {
-                if (node.declaration?.type === 'ClassDeclaration') {
-                  classesInTargetModule.push(node.declaration.id?.name as string);
-                }
-              }
-          }});
-        }
-      }
-    }
-
-    for (const module of program.trees) {
-      if (module.path !== targetModulePath) {
-        const classesInModule = getAllBlobsFromTree(module, ['ts', 'js']);
-
-        for (const blob of classesInModule) {
-          const ast = parse(blob.content, { 
-            plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
-          });
-
-          traverse(ast, { 
-            enter(node) {
-              if (node.type === 'ImportDeclaration' && node.source.value.includes(targetModulePath.split('/').at(-1) as string)) {
-                for (const specifier of node.specifiers) {
-                  if (specifier.type === 'ImportSpecifier' && classesInTargetModule.includes((specifier.imported as Identifier).name)) {
-                    afferentCoupling++;
-                  }
-                  if (specifier.type === 'ImportDefaultSpecifier' && classesInTargetModule.includes((specifier.local as Identifier).name)) {
-                    afferentCoupling++;
-                  }
-                }
-              }
-          }});
-        }
-      }
-    }
-    
-    return { value: afferentCoupling };
-  } 
-}
+test('Strong coupling', () => {
+  expect(new AfferentCoupling([]).run(testDir, 'tests/module1').value).toBe(6);
+});

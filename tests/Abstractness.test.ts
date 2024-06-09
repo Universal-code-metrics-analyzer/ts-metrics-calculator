@@ -1,51 +1,15 @@
-import { parse } from "@babel/parser";
-import { IBlob, IMetric, IModule } from "../types";
-import { findPathInFileTree, getAllBlobsFromTree } from "../utils";
-import { traverse } from "@babel/types";
+import { Abstractness } from "../src/metrics";
+import * as fs from 'fs';
+import { IModule } from "../src/types";
+import { findPathInFileTree } from "../src/utils";
 
-export default class Abstractness implements IMetric {
-  private _name = 'Abstractness';
-  private _info = 'Abstractness';
-  private _scope = 'module';
+const project = JSON.parse(fs.readFileSync(__dirname + '/repo.json').toString());
+const testDir = findPathInFileTree('tests', project) as IModule;
 
-  public get name() {
-    return this._name;
-  }
+test('Has abstract classes', () => {
+  expect(new Abstractness([]).run(project, 'src').value).toBeGreaterThan(0.03);
+});
 
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(program: IModule, targetModulePath: string) {
-    // will take as assumption that interfaces also contribute to abstractness
-    let totalNumberOfClassesAndInterfaces = 0;
-    let numberOfAbstractClassesAndInterfaces = 0;
-
-    const targetModule = findPathInFileTree(targetModulePath, program) as IModule;
-    const filesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, ['ts', 'js']);
-
-    for (const file of filesInTargetModule) {
-      const ast = parse(file.content, { 
-        plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
-      });
-
-      traverse(ast, { 
-        enter(node) {
-          if (node.type === 'ClassDeclaration') {
-            totalNumberOfClassesAndInterfaces++;
-            if (node.abstract) numberOfAbstractClassesAndInterfaces++;
-          }
-          if (node.type === 'InterfaceDeclaration') {
-            totalNumberOfClassesAndInterfaces++;
-            numberOfAbstractClassesAndInterfaces++;
-          }
-      }});
-    }
-
-    return { value: numberOfAbstractClassesAndInterfaces / totalNumberOfClassesAndInterfaces };
-  } 
-}
+test('No abstract classes', () => {
+  expect(new Abstractness([]).run(testDir, 'tests/module3').value).toBe(0);
+});

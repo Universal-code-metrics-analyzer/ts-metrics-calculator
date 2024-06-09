@@ -1,27 +1,29 @@
-import { IMetric } from "../types";
-import NumberOfInputOutputParameters from './NumberOfInputOutputParameters';
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import { parse } from "@babel/parser";
+import { PotentialProgramVolume } from "../src/metrics";
 
-export default class PotentialProgramVolume implements IMetric {
-  private _name = 'Potential program volume';
-  private _info = 'Potential program volume';
-  private _scope = 'any';
 
-  public get name() {
-    return this._name;
-  }
+test('Potential volume of a separate function', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+  });
+  
+  expect(new PotentialProgramVolume([]).run(ast).value).toBe(2);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Potential volume of a class method', () => {
+  const classMethod = `
+    let foo = 5;
+    foo = foo + this.foo - this.getFoo() + 3;
+  `;
 
-  public run(program: ParseResult<File>) {
-    const numberOfInputOutputParameters = new NumberOfInputOutputParameters().run(program).value;
-    return { value: (numberOfInputOutputParameters + 2) * Math.log2(numberOfInputOutputParameters + 2) };
-  } 
-}
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new PotentialProgramVolume([]).run(ast).value).toBe(2);
+});

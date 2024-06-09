@@ -1,82 +1,15 @@
-import { IBlob, IMetric, IModule } from "../types";
-import { findPathInFileTree, getAllBlobsFromTree } from "../utils";
-import { parse } from '@babel/parser';
-import { traverse } from '@babel/types';
+import { NumberOfChild } from "../src/metrics";
+import * as fs from 'fs';
+import { IModule } from "../src/types";
+import { findPathInFileTree } from "../src/utils";
 
-export default class NumberOfChild implements IMetric {
-  private _name = 'Number Of Child';
-  private _info = 'Number Of Child';
-  private _scope = 'module';
+const project = JSON.parse(fs.readFileSync(__dirname + '/repo.json').toString());
+const rootDir = findPathInFileTree('tests', project) as IModule;
 
-  public get name() {
-    return this._name;
-  }
+test('No children', () => {
+  expect(new NumberOfChild([]).run(rootDir, 'tests/module1/A2.ts').value).toBe(0);
+});
 
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(program: IModule, targetClassPath: string) {
-    let numberOfChildren = 0;
-    const targetClassName = targetClassPath.split('/').at(-1)?.split('.').at(0);
-    const blobs = getAllBlobsFromTree(program, ['ts', 'js']);
-
-    for (const blob of blobs) {
-      if (blob.path !== targetClassPath) {
-        const ast = parse(blob.content, { 
-          plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
-        });
-
-        traverse(ast, { 
-          enter(node) {
-            if (node.type === 'ImportDeclaration') {
-              let isClassImported = false;
-              for (const specifier of node.specifiers) {
-                if (specifier.local.name === targetClassName) {
-                  let absolutePath = '';
-                  const relativePath = node.source.value.split('/');
-                  const _relativePath = [...relativePath];
-                  const currentDir = blob.path.split('/');
-                  const extension = '.' + currentDir.at(-1)?.split('.').at(-1);
-
-                  for (let i = 0; i < relativePath.length; i++) {
-                    if (relativePath[i] === '.') {
-                      currentDir.pop();
-                      currentDir.push(targetClassName + extension);
-                      absolutePath = currentDir.join('/');
-                      if (absolutePath === targetClassPath) isClassImported = true;
-                      break;
-                    } else if (relativePath[i] === '..') {
-                      if (i === 0) currentDir.pop();
-                      currentDir.pop();
-                      _relativePath.shift();
-                    } else {
-                      absolutePath = currentDir.join('/') + '/' + _relativePath.join('/') + extension;
-                      if (absolutePath === targetClassPath) isClassImported = true;
-                      break;
-                    }
-                  }
-                }
-              }
-
-              if (isClassImported) {
-                traverse(ast, { 
-                  enter(node) {
-                    if (node.type === 'ClassDeclaration' && node.superClass) {
-                      //@ts-ignore
-                      if (targetClassName === node.superClass.name) numberOfChildren++;
-                    }
-                }});
-              }
-            }
-        }});
-      }
-    }
-    
-    return { value: numberOfChildren };
-  } 
-}
+test('Few children', () => {
+  expect(new NumberOfChild([]).run(rootDir, 'tests/module1/A.ts').value).toBe(2);
+});

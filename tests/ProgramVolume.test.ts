@@ -1,27 +1,29 @@
-import { IMetric } from "../types";
-import ImplemetationLength from './ImplementationLength';
-import ProgramDictionary from './ProgramDictionary';
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import { parse } from "@babel/parser";
+import { ProgramVolume } from "../src/metrics";
 
-export default class ProgramVolume implements IMetric {
-  private _name = 'Program volume';
-  private _info = 'Program volume';
-  private _scope = 'any';
 
-  public get name() {
-    return this._name;
-  }
+test('Volume of a separate function', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+  });
+  
+  expect(new ProgramVolume([]).run(ast).value).toBe(36);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Volume of a class method', () => {
+  const classMethod = `
+    let foo = 5;
+    foo = foo + this.foo - this.getFoo() + 3;
+  `;
 
-  public run(program: ParseResult<File>) {
-    return { value: new ImplemetationLength().run(program).value * Math.log2(new ProgramDictionary().run(program).value) };
-  } 
-}
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(Math.round(new ProgramVolume([]).run(ast).value)).toBe(84);
+});

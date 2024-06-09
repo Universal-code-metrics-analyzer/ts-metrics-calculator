@@ -1,38 +1,80 @@
-import { IMetric } from "../types";
-import { ParseResult } from '@babel/parser';
-import { traverse, File } from '@babel/types';
+import { parse } from "@babel/parser";
+import { NumberOfMethods } from "../src/metrics";
 
-export default class NumberOfMethods implements IMetric {
-  private _name = 'Number Of Methods';
-  private _info = 'Number Of Methods';
-  private _scope = 'class';
-
-  public get name() {
-    return this._name;
+test('No methods', () => {
+  const text = `
+  class A {
+    prop1 = 1;
   }
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(text, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
+  
+  expect(new NumberOfMethods([]).run(ast).value).toBe(0);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
 
-  public run(program: ParseResult<File>) {
+test('One method', () => {
+  const text = `
+  class A {
+    prop1 = 1
     
-    let MethodsCount = 0;
+    method1() {
+      var jsonData;
+      return jsonData;
+    }
+  }
+  `;
 
-    traverse(program, { 
-      enter(node) {
-        if (node.type === 'ClassBody') {
-          for (const item of node.body) {
-            //@ts-ignore
-            if (item.type === 'MethodDefinition') MethodsCount++;
-          }
-        }
-    }});
+  const ast = parse(text, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
+  
+  expect(new NumberOfMethods([]).run(ast).value).toBe(1);
+});
+
+test('Couple of methods', () => {
+  const text = `
+  class A {
+    prop1 = 1
     
-    return { value: MethodsCount };
-  } 
-}
+    method1() {
+      var jsonData;
+      return jsonData;
+    }
+  
+    method2() {
+      var jsonData;
+      return jsonData;
+    }
+  
+    method3() {
+      var jsonData;
+      return jsonData;
+    }
+
+    method4() {
+      var jsonData;
+      return jsonData;
+    }
+
+    method5() {
+      var jsonData;
+      return jsonData;
+    }
+
+    method6() {
+      var jsonData;
+      return jsonData;
+    }
+  }
+  `;
+
+  const ast = parse(text, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module' 
+  });
+
+  expect(new NumberOfMethods([]).run(ast).value).toBe(6);
+});

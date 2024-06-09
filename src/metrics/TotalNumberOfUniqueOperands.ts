@@ -18,7 +18,7 @@ export default class TotalNumberOfUniqueOperands extends AbstractMetric<ParseRes
       for (const token of program.tokens) {
         if (token.type.keyword === undefined 
           && token.value 
-          && (token.type.label === 'name' || token.type.label === 'string') 
+          && (token.type.label === 'name' || token.type.label === 'string' || token.type.label === 'num') 
           && token.value !== 'let' 
           && !uniqueOperands.find((elem) => elem[0] === token.value && elem[1] === token.type.label)) {
           uniqueOperands.push([token.value, token.type.label]);

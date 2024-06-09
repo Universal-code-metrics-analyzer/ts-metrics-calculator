@@ -8,7 +8,8 @@
     "dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm index.ts",
     "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:eslint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "lint:tsc": "tsc -p ./tsconfig.json"
+    "lint:tsc": "tsc -p ./tsconfig.json",
+    "test": "jest"
   },
   "author": "Andrei Kulevich",
   "license": "ISC",

@@ -1,27 +1,12 @@
-import { IMetric, IModule } from "../types";
-import AfferentCoupling from "./AfferentCoupling";
-import EfferentCoupling from "./EfferentCoupling";
+import { Instability } from "../src/metrics";
+import * as fs from 'fs';
 
-export default class Instability implements IMetric {
-  private _name = 'Instability';
-  private _info = 'Instability';
-  private _scope = 'module';
+const project = JSON.parse(fs.readFileSync(__dirname + '/repo.json').toString());
 
-  public get name() {
-    return this._name;
-  }
+test('Stable module', () => {
+  expect(new Instability([]).run(project, 'tests/module3').value).toBe(0.25);
+});
 
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(program: IModule, targetModulePath: string) {
-    const afferentCoupling = new AfferentCoupling().run(program, targetModulePath).value;
-    const efferentCoupling = new EfferentCoupling().run(program, targetModulePath).value;
-    return { value: efferentCoupling / (efferentCoupling + afferentCoupling) };
-  } 
-}
+test('Instable module', () => {
+  expect(new Instability([]).run(project, 'tests').value).toBe(1);
+});

@@ -18,7 +18,7 @@ export default class TotalNumberOfUniqueOperators extends AbstractMetric<ParseRe
       for (const token of program.tokens) {
         if (((token.type.keyword 
           || token.type.binop)
-          || (token.type.label !== 'name' && token.type.label !== 'string')
+          || (token.type.label !== 'name' && token.type.label !== 'string' && token.type.label !== 'num')
           || token.value === 'let') 
           && !uniqueOperators.find((elem) => elem[0] === token.value && elem[1] === token.type.label)) {
           uniqueOperators.push([token.value, token.type.label]);

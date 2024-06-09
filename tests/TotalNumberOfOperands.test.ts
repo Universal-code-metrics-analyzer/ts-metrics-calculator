@@ -1,34 +1,29 @@
-import { IMetric } from "../types";
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import { parse } from "@babel/parser";
+import { TotalNumberOfOperands } from "../src/metrics";
 
-export default class TotalNumberOfOperands implements IMetric {
-  private _name = 'Total number of operands';
-  private _info = 'Total number of operands';
-  private _scope = 'any';
 
-  public get name() {
-    return this._name;
-  }
+test('Operators of a separate function', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+  });
+  
+  expect(new TotalNumberOfOperands([]).run(ast).value).toBe(3);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Operators of a class method', () => {
+  const classMethod = `
+    let foo = 5;
+    foo = foo + this.foo - this.getFoo() + 3;
+  `;
 
-  public run(program: ParseResult<File>) {
-    let operandsCount = 0;
-    if (program.tokens) {
-      for (const token of program.tokens) {
-        if (token.type.keyword === undefined 
-          && token.value 
-          && (token.type.label === 'name' || token.type.label === 'string') 
-          && token.value !== 'let') operandsCount++;
-      }
-    }
-    return { value: operandsCount };
-  } 
-}
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new TotalNumberOfOperands([]).run(ast).value).toBe(5);
+});

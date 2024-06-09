@@ -1,54 +1,19 @@
-import { IBlob, IMetric, IModule } from "../types";
-import { getAllBlobsFromTree } from "../utils";
-import { parse } from '@babel/parser';
-import { traverse } from '@babel/types';
+import { EfferentCoupling } from "../src/metrics";
+import * as fs from 'fs';
+import { IModule } from "../src/types";
+import { findPathInFileTree } from "../src/utils";
 
-export default class EfferentCoupling implements IMetric {
-  private _name = 'Efferent coupling';
-  private _info = 'Efferent coupling';
-  private _scope = 'module';
+const project = JSON.parse(fs.readFileSync(__dirname + '/repo.json').toString());
+const testDir = findPathInFileTree('tests', project) as IModule;
 
-  public get name() {
-    return this._name;
-  }
+test('No coupling', () => {
+  expect(new EfferentCoupling([]).run(project, 'src/utils').value).toBe(0);
+});
 
-  public get info() {
-    return this._info;
-  }
+test('Weak coupling', () => {
+  expect(new EfferentCoupling([]).run(testDir, 'tests/module3').value).toBe(1);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(program: IModule, targetModulePath: string) {
-    let targetModule = null;
-    let efferentCoupling = 0;
-
-    for (const module of program.trees) {
-      if (module.path === targetModulePath) {
-        targetModule = module;
-        const _classesInTargetModule: IBlob[] = getAllBlobsFromTree(targetModule, ['ts', 'js']);
-
-        for (const blob of _classesInTargetModule) {
-          const ast = parse(blob.content, { 
-            plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
-          });
-
-          const cdUpsToGoOutsideModule = blob.path.split('/').length - targetModulePath.split('/').length;
-
-          traverse(ast, { 
-            enter(node) {
-              if (node.type === 'ImportDeclaration') {
-                if (node.source.value.includes('@') || (node.source.value.match(/..\//g) || []).length >= cdUpsToGoOutsideModule) {
-                  efferentCoupling++;
-                }
-              }
-          }});
-        }
-        break;
-      }
-    }
-    
-    return { value: efferentCoupling };
-  } 
-}
+test('Strong coupling', () => {
+  expect(new EfferentCoupling([]).run(testDir, 'tests/module1').value).toBe(4);
+});

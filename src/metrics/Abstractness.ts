@@ -22,7 +22,7 @@ export default class Abstractness extends AbstractMetric<IModule> {
 
     for (const file of filesInTargetModule) {
       const ast = parse(file.content, { 
-        plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+        plugins: ['typescript', 'estree'], sourceType: 'module' 
       });
 
       traverse(ast, { 

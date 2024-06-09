@@ -1,27 +1,29 @@
-import { IMetric } from "../types";
-import PotentialProgramVolume from './PotentialProgramVolume';
-import ProgramVolume from './ProgramVolume';
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import { parse } from "@babel/parser";
+import { ProgramLevel } from "../src/metrics";
 
-export default class ProgramLevel implements IMetric {
-  private _name = 'Program level';
-  private _info = 'Program level';
-  private _scope = 'any';
 
-  public get name() {
-    return this._name;
-  }
+test('Level of a separate function', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+  });
+  
+  expect(new ProgramLevel([]).run(ast).value).toBeLessThanOrEqual(0.06);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Level of a class method', () => {
+  const classMethod = `
+    let foo = 5;
+    foo = foo + this.foo - this.getFoo() + 3;
+  `;
 
-  public run(program: ParseResult<File>) {
-    return { value: new PotentialProgramVolume().run(program).value / new ProgramVolume().run(program).value };
-  } 
-}
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new ProgramLevel([]).run(ast).value).toBeLessThanOrEqual(0.05);
+});

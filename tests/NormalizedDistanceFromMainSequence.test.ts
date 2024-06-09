@@ -1,27 +1,12 @@
-import { IMetric, IModule } from "../types";
-import Instability from "./Instability";
-import Abstractness from "./Abstractness";
+import { NormalizedDistanceFromMainSequence } from "../src/metrics";
+import * as fs from 'fs';
 
-export default class NormalizedDistanceFromMainSequence implements IMetric {
-  private _name = 'Normalized Distance From Main Sequence';
-  private _info = 'Normalized Distance From Main Sequence';
-  private _scope = 'module';
+const project = JSON.parse(fs.readFileSync(__dirname + '/repo.json').toString());
 
-  public get name() {
-    return this._name;
-  }
+test('Close to 1', () => {
+  expect(new NormalizedDistanceFromMainSequence([]).run(project, 'tests/module3').value).toBe(0.75);
+});
 
-  public get info() {
-    return this._info;
-  }
-
-  public get scope() {
-    return this._scope as any;
-  }
-
-  public run(program: IModule, targetModulePath: string) {
-    const instability = new Instability().run(program, targetModulePath).value;
-    const abstractness = new Abstractness().run(program, targetModulePath).value;
-    return { value: Math.abs(instability + abstractness - 1) };
-  } 
-}
+test('Close to 0', () => {
+  expect(new NormalizedDistanceFromMainSequence([]).run(project, 'tests').value).toBeLessThan(0.04);
+});

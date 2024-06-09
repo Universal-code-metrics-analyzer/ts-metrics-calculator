@@ -1,27 +1,29 @@
-import { IMetric } from "../types";
-import TotalNumberOfUniqueOperands from './TotalNumberOfUniqueOperands';
-import TotalNumberOfUniqueOperators from './TotalNumberOfUniqueOperators';
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import { parse } from "@babel/parser";
+import { ProgramDictionary } from "../src/metrics";
 
-export default class ProgramDictionary implements IMetric {
-  private _name = 'Program Dictionary';
-  private _info = 'Program Dictionary';
-  private _scope = 'any';
 
-  public get name() {
-    return this._name;
-  }
+test('Dictionary of a separate function', () => {
+  const separateFunction = `
+    let foo = 5;
+    foo = foo + 3;
+  `;
 
-  public get info() {
-    return this._info;
-  }
+  const ast = parse(separateFunction, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+  });
+  
+  expect(new ProgramDictionary([]).run(ast).value).toBe(8);
+});
 
-  public get scope() {
-    return this._scope as any;
-  }
+test('Dictionary of a class method', () => {
+  const classMethod = `
+    let foo = 5;
+    foo = foo + this.foo - this.getFoo() + 3;
+  `;
 
-  public run(program: ParseResult<File>) {
-    return { value: new TotalNumberOfUniqueOperands().run(program).value + new TotalNumberOfUniqueOperators().run(program).value };
-  } 
-}
+  const ast = parse(classMethod, { 
+    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+  });
+
+  expect(new ProgramDictionary([]).run(ast).value).toBe(14);
+});
