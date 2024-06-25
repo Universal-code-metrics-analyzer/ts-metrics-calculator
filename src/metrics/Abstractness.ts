@@ -38,6 +38,6 @@ export default class Abstractness extends AbstractMetric<IModule> {
       }});
     }
 
-    return returnMetricValueWithDesc(numberOfAbstractClassesAndInterfaces / totalNumberOfClassesAndInterfaces, this._intervals);
+    return returnMetricValueWithDesc(totalNumberOfClassesAndInterfaces ? numberOfAbstractClassesAndInterfaces / totalNumberOfClassesAndInterfaces : 0, this._intervals);
   } 
 }
