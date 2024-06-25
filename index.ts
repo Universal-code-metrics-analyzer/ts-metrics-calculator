@@ -7,6 +7,11 @@ import { ClassDeclaration, FunctionDeclaration, FunctionExpression, traverse } f
 import { ParseResult } from '@babel/parser';
 import { File } from '@babel/types';
 
+// support bigint stringify
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 // ----------------------------------------------------------------------------------
 
 const helpIndex = process.argv.indexOf('--help');
@@ -185,7 +190,7 @@ for (const blob of blobs) {
   };
 
   const ast = parse(blob.content, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true
   });
   
   traverse(ast, { 

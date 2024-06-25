@@ -69,7 +69,7 @@ test('Few methods with different difficulty', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
   
   expect(new WeightedMethodsPerClass([]).run(ast).value).toBe(16);
@@ -113,7 +113,7 @@ test('Couple of simple methods', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new WeightedMethodsPerClass([]).run(ast).value).toBe(6);

@@ -9,7 +9,7 @@ test('Volume of a separate function', () => {
   `;
 
   const ast = parse(separateFunction, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true 
   });
   
   expect(new ProgramVolume([]).run(ast).value).toBe(36);
@@ -22,7 +22,7 @@ test('Volume of a class method', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true
   });
 
   expect(Math.round(new ProgramVolume([]).run(ast).value)).toBe(84);

@@ -11,7 +11,7 @@ test('Only input params', () => {
   `;
 
   const ast = parse(separateFunction, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true 
   });
   
   expect(new NumberOfInputOutputParameters([]).run(ast).value).toBe(3);
@@ -27,7 +27,7 @@ test('Input and output params', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true
   });
 
   expect(new NumberOfInputOutputParameters([]).run(ast).value).toBe(4);

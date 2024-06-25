@@ -9,7 +9,7 @@ test('Effort of a separate function', () => {
   `;
 
   const ast = parse(separateFunction, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true 
   });
   
   expect(new ProgramEffort([]).run(ast).value).toBeLessThanOrEqual(36);
@@ -22,7 +22,7 @@ test('Effort of a class method', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true
   });
 
   expect(new ProgramEffort([]).run(ast).value).toBeLessThanOrEqual(84);

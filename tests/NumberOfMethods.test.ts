@@ -9,7 +9,7 @@ test('No methods', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
   
   expect(new NumberOfMethods([]).run(ast).value).toBe(0);
@@ -29,7 +29,7 @@ test('One method', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
   
   expect(new NumberOfMethods([]).run(ast).value).toBe(1);
@@ -73,7 +73,7 @@ test('Couple of methods', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new NumberOfMethods([]).run(ast).value).toBe(6);

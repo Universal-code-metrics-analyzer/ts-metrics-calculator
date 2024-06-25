@@ -24,7 +24,7 @@ export default class AfferentCoupling extends AbstractMetric<IModule> {
 
       for (const blob of _classesInTargetModule) {
         const ast = parse(blob.content, { 
-          plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+          plugins: ['jsx', 'typescript', 'estree', 'decorators'], sourceType: 'module' 
         });
 
         traverse(ast, { 
@@ -45,7 +45,7 @@ export default class AfferentCoupling extends AbstractMetric<IModule> {
 
         for (const blob of classesInModule) {
           const ast = parse(blob.content, { 
-            plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+            plugins: ['jsx', 'typescript', 'estree', 'decorators'], sourceType: 'module' 
           });
 
           traverse(ast, { 

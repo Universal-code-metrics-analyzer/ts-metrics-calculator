@@ -22,7 +22,7 @@ export default class EfferentCoupling extends AbstractMetric<IModule> {
 
       for (const blob of _classesInTargetModule) {
         const ast = parse(blob.content, { 
-          plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+          plugins: ['jsx', 'typescript', 'estree', 'decorators'], sourceType: 'module' 
         });
 
         const cdUpsToGoOutsideModule = blob.path.split('/').length - targetModulePath.split('/').length;

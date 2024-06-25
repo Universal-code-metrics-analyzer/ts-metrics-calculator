@@ -40,7 +40,7 @@ test('Methods use the same class properties', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
   
   expect(new LackOfCohesionOfMethods([]).run(ast).value).toBe(0);
@@ -84,7 +84,7 @@ test('Methods do not share mutual props', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new LackOfCohesionOfMethods([]).run(ast).value).toBe(15);

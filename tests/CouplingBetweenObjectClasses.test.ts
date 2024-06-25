@@ -40,7 +40,7 @@ test('High coupling', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
   
   expect(new CouplingBetweenObjectClasses([]).run(ast).value).toBe(2);
@@ -84,7 +84,7 @@ test('No coupling', () => {
   `;
 
   const ast = parse(text, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new CouplingBetweenObjectClasses([]).run(ast).value).toBe(0);

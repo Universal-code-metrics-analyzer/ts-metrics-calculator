@@ -20,11 +20,11 @@ export default class DepthOfInheritanceTree extends AbstractMetric<IModule> {
       const file = findPathInFileTree(targetClassPath, program);
   
       if (file?.type !== 'blob') {
-        throw Error("Provided path is not a file. Please, specify path to the file");
+        return 0;
       }
   
       const ast = parse((file as IBlob).content, { 
-        plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+        plugins: ['jsx', 'typescript', 'estree', 'decorators'], sourceType: 'module' 
       });
   
       let parentClassname: string | null = null;

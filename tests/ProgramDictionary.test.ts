@@ -9,7 +9,7 @@ test('Dictionary of a separate function', () => {
   `;
 
   const ast = parse(separateFunction, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true 
   });
   
   expect(new ProgramDictionary([]).run(ast).value).toBe(8);
@@ -22,7 +22,7 @@ test('Dictionary of a class method', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module', tokens: true
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module', tokens: true
   });
 
   expect(new ProgramDictionary([]).run(ast).value).toBe(14);

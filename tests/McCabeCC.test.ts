@@ -9,7 +9,7 @@ test('Simple procedure without cycles and conditions', () => {
   `;
 
   const ast = parse(separateFunction, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
   
   expect(new McCabeCC([]).run(ast).value).toBe(1);
@@ -24,7 +24,7 @@ test('Simple procedure with cycle', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new McCabeCC([]).run(ast).value).toBe(2);
@@ -40,7 +40,7 @@ test('Simple procedure with condition', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new McCabeCC([]).run(ast).value).toBe(2);
@@ -66,7 +66,7 @@ test('Medium procedure', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new McCabeCC([]).run(ast).value).toBe(5);
@@ -107,7 +107,7 @@ test('Difficult procedure', () => {
   `;
 
   const ast = parse(classMethod, { 
-    plugins: ['typescript', 'estree'], sourceType: 'module' 
+    plugins: ['typescript', 'estree', 'decorators'], sourceType: 'module' 
   });
 
   expect(new McCabeCC([]).run(ast).value).toBe(10);

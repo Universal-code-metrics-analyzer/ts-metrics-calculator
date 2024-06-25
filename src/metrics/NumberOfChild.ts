@@ -20,7 +20,7 @@ export default class NumberOfChild extends AbstractMetric<IModule> {
     for (const blob of blobs) {
       if (blob.path !== targetClassPath) {
         const ast = parse(blob.content, { 
-          plugins: ['jsx', 'typescript', 'estree'], sourceType: 'module' 
+          plugins: ['jsx', 'typescript', 'estree', 'decorators'], sourceType: 'module' 
         });
 
         traverse(ast, { 
