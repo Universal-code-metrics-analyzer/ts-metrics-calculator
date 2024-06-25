@@ -14,9 +14,13 @@ export default class McCabeCC extends AbstractMetric<ParseResult<File>> {
   }
 
   public run(program: ParseResult<File>) {
-    const programFlow = Styx.parse(program.program);
-    const m = programFlow.flowGraph.edges.length, n = programFlow.flowGraph.nodes.length;
-    const result = m - n + 2;
-    return returnMetricValueWithDesc(result, this._intervals);
+    try {
+      const programFlow = Styx.parse(program.program);
+      const m = programFlow.flowGraph.edges.length, n = programFlow.flowGraph.nodes.length;
+      const result = m - n + 2;
+      return returnMetricValueWithDesc(result, this._intervals);
+    } catch (error) {
+      return returnMetricValueWithDesc(1, this._intervals);
+    }
   }
 }
